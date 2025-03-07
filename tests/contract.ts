@@ -1,14 +1,17 @@
 import * as anchor from '@coral-xyz/anchor';
-import { Program } from '@coral-xyz/anchor';
-import { Contract } from '../target/types/contract';
 import ECDSA from 'ecdsa-secp256r1';
-import { Keypair } from '@solana/web3.js';
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  SystemProgram,
+  Transaction,
+} from '@solana/web3.js';
 import dotenv from 'dotenv';
 import bs58 from 'bs58';
-import { createInitSmartWalletTransaction } from '../script/api/init';
-import { getSmartWalletPdaByCreator } from '../script/api/getSmartWalletPda';
-import { createVerifyAndExecuteTransaction } from '../script/api/verifyAndExecute';
+
 import { setup } from './raydium-swap/swap';
+import { SmartWalletContract } from '../sdk';
+import { estimateFee, signAndSendTxn } from '../relayer';
 dotenv.config();
 
 describe('contract', () => {
@@ -19,16 +22,16 @@ describe('contract', () => {
 
   const wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
 
+  const program = new SmartWalletContract(anchorProvider.connection);
+
   xit('Init smart-wallet', async () => {
     const privateKey = ECDSA.generateKey();
-
-     
 
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
 
     const pubkey = Array.from(Buffer.from(publicKeyBase64, 'base64'));
 
-    const txn = await createInitSmartWalletTransaction({
+    const txn = await program.createInitSmartWalletTransaction({
       secp256k1PubkeyBytes: pubkey,
       connection: anchorProvider.connection,
       payer: wallet.publicKey,
@@ -45,8 +48,8 @@ describe('contract', () => {
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
     const pubkey = Buffer.from(publicKeyBase64, 'base64');
 
-    await anchorProvider.sendAndConfirm(
-      await createInitSmartWalletTransaction({
+    const createWalletSig = await anchorProvider.sendAndConfirm(
+      await program.createInitSmartWalletTransaction({
         secp256k1PubkeyBytes: Array.from(pubkey),
         connection: anchorProvider.connection,
         payer: wallet.publicKey,
@@ -54,10 +57,20 @@ describe('contract', () => {
       [wallet]
     );
 
-    const smartWalletPubkey = await getSmartWalletPdaByCreator(
-      anchorProvider.connection,
-      Array.from(pubkey)
+    console.log('Create smart wallet', createWalletSig);
+
+    const listSmartWalletAuthority =
+      await program.getListSmartWalletAuthorityByPasskeyPubkey({
+        data: Array.from(pubkey),
+      });
+
+    const smartWalletAuthority = listSmartWalletAuthority[0];
+
+    const smartWalletAuthorityData = await program.getSmartWalletAuthorityData(
+      smartWalletAuthority
     );
+
+    const smartWalletPubkey = smartWalletAuthorityData.smartWalletPubkey;
 
     console.log('Smart wallet pubkey', smartWalletPubkey.toBase58());
 
@@ -67,33 +80,53 @@ describe('contract', () => {
       anchorProvider,
     });
 
-    const message = 'Hello';
+    const { message, messageBytes } = await program.getMessage(
+      smartWalletAuthorityData,
+      swapIns.data
+    );
 
-    const messageBytes = Buffer.from(message);
-
-    const signatureBase64 = privateKey.sign(Buffer.from(message).toString());
+    const signatureBase64 = privateKey.sign(messageBytes);
 
     let signature = Buffer.from(signatureBase64, 'base64');
 
-    const txn = await createVerifyAndExecuteTransaction({
+    const txn = await program.createVerifyAndExecuteTransaction({
       arbitraryInstruction: swapIns,
       pubkey: pubkey,
       signature: signature,
-      message: messageBytes,
+      message,
       connection: anchorProvider.connection,
       payer: wallet.publicKey,
-      smartWalletPda: smartWalletPubkey,
+      smartWalletPubkey,
+      smartWalletAuthority,
     });
 
-    txn.partialSign(wallet);
+    const txnSerialized = txn.serialize({
+      requireAllSignatures: false,
+      verifySignatures: false,
+    });
 
-    // sleep for 5 seconds
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // estimate fee
+    await anchorProvider.connection.simulateTransaction(txn);
 
-    const sig = await anchorProvider.connection.sendRawTransaction(
-      txn.serialize()
-    );
+    // sign and send txn with relayer
+    await signAndSendTxn({
+      relayerUrl: process.env.PAYMASTER_RELAYER,
+      base58EncodedTransaction: bs58.encode(
+        txn.serialize({
+          requireAllSignatures: false,
+          verifySignatures: false,
+        })
+      ),
+    });
 
-    console.log('Verify and execute transfer token instruction', sig);
+    // txn.partialSign(wallet);
+
+    // console.log('Txn size', txn.serialize().length);
+
+    // const sig = await anchorProvider.connection.sendRawTransaction(
+    //   txn.serialize()
+    // );
+
+    // console.log('Verify and execute transfer token instruction', sig);
   });
 });

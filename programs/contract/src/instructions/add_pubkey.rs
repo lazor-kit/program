@@ -1,32 +1,46 @@
 use anchor_lang::prelude::*;
 
-use crate::{error::ContractError, ID};
+use crate::{smart_wallet_authority, PasskeyPubkey, SmartWalletAuthority, ID};
 
-use super::SmartWallet;
-
-pub fn add_pubkey(ctx: Context<AddPubkey>, vec_pubkey: Vec<[u8; 33]>, _id: u64) -> Result<()> {
-    let smart_wallet = &mut ctx.accounts.smart_wallet;
-
-    // check if smart_wallet.pubkey.len() + vec_pubkey.len() <= 5
-    if smart_wallet.authority.len() + vec_pubkey.len() > 5 {
-        return Err(ContractError::TooManyPubkey.into());
-    }
-
-    for pubkey in vec_pubkey {
-        smart_wallet.authority.push(pubkey);
-    }
-
-    Ok(())
+#[derive(Debug, AnchorSerialize, AnchorDeserialize)]
+pub struct AddPubkeyMessage {
+    pub nonce: u64,
+    pub timestamp: i64,
+    pub id: u64,
 }
 
+// pub fn add_pubkey(
+//     ctx: Context<AddPubkey>,
+//     pubkey: PasskeyPubkey,
+//     msg: AddPubkeyMessage,
+//     sig: [u8; 64],
+// ) -> Result<()> {
+//     let smart_wallet_authority = &mut ctx.accounts.smart_wallet_authority;
+//     let new_authority = &ctx.accounts.new_authority;
+
+//     Ok(())
+// }
+
 #[derive(Accounts)]
-#[instruction(_id: u64)]
+#[instruction(pubkey: PasskeyPubkey, msg: AddPubkeyMessage)]
 pub struct AddPubkey<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
     #[account(
         mut,
-        seeds=[b"smart_wallet", _id.to_le_bytes().as_ref()],
-        bump,
-        owner = ID
+        owner = ID,
     )]
-    pub smart_wallet: Account<'info, SmartWallet>,
+    pub smart_wallet_authority: Account<'info, SmartWalletAuthority>,
+
+    #[account(
+        init,
+        seeds = [SmartWalletAuthority::PREFIX_SEED, smart_wallet_authority.smart_wallet_pubkey.as_ref(), msg.id.to_le_bytes().as_ref()],
+        bump,
+        space = 8 + SmartWalletAuthority::INIT_SPACE,
+        payer = payer,
+    )]
+    pub new_authority: Account<'info, SmartWalletAuthority>,
+
+    pub system_program: Program<'info, System>,
 }

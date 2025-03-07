@@ -1,23 +1,28 @@
-use crate::error::{ContractError};
-use anchor_lang::{prelude::*, solana_program::instruction::Instruction};
+use crate::{error::ContractError, PasskeyPubkey, VerifyParam};
+use anchor_lang::{
+    prelude::*,
+    solana_program::{instruction::Instruction, sysvar::instructions::load_instruction_at_checked},
+};
 
 const SECP256R1_ID: Pubkey = pubkey!("Secp256r1SigVerify1111111111111111111111111");
 
-pub fn verify_secp256r1_ix(ix: &Instruction, pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<()> {
+pub fn verify_secp256r1_ix(ix: &Instruction, verify_params: &VerifyParam) -> Result<()> {
     if ix.program_id       != SECP256R1_ID                 ||  // The program id we expect
         ix.accounts.len()   != 0                            ||  // With no context accounts
-        ix.data.len()       != (2 + 14 + 33 + 64 + msg.len())
+        ix.data.len()       != (2 + 14 + 33 + 64 + verify_params.msg.try_to_vec()?.len())
     // And data of this size
     {
         return Err(ContractError::SigVerificationFailed.into()); // Otherwise, we can already throw err
     }
 
-    check_secp256r1_data(&ix.data, pubkey, msg, sig)?; // If that's not the case, check data
+    check_secp256r1_data(&ix.data, verify_params)?; // If that's not the case, check data
 
     Ok(())
 }
 
-fn check_secp256r1_data(data: &[u8], pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<()> {
+fn check_secp256r1_data(data: &[u8], verify_params: &VerifyParam) -> Result<()> {
+    let VerifyParam { pubkey, msg, sig } = verify_params;
+
     // Parse header components
     let num_signatures = &[data[0]]; // Byte 0
     let signature_offset = &data[2..=3]; // Bytes 2-3
@@ -36,8 +41,8 @@ fn check_secp256r1_data(data: &[u8], pubkey: &[u8], msg: &[u8], sig: &[u8]) -> R
     // Calculate expected values
     const SIGNATURE_OFFSETS_SERIALIZED_SIZE: u16 = 14;
     const DATA_START: u16 = 2 + SIGNATURE_OFFSETS_SERIALIZED_SIZE;
-    let msg_len: u16 = msg.len() as u16;
-    let pubkey_len: u16 = pubkey.len() as u16;
+    let msg_len: u16 = msg.try_to_vec()?.len() as u16;
+    let pubkey_len: u16 = pubkey.data.len() as u16;
     let sig_len: u16 = sig.len() as u16;
 
     let exp_pubkey_offset: u16 = DATA_START;
@@ -57,8 +62,56 @@ fn check_secp256r1_data(data: &[u8], pubkey: &[u8], msg: &[u8], sig: &[u8]) -> R
         return Err(ContractError::SigVerificationFailed.into());
     }
 
-    if &data_pubkey[..] != &pubkey[..] || &data_sig[..] != &sig[..] || &data_msg[..] != &msg[..] {
+    if &data_pubkey[..] != &pubkey.data[..]
+        || &data_sig[..] != &sig[..]
+        || &data_msg[..] != &msg.try_to_vec()?[..]
+    {
         return Err(ContractError::SigVerificationFailed.into());
     }
     Ok(())
+}
+
+pub fn verify_authority<'info>(
+    instruction_index: u8,
+    instruction_sysvar_account_info: &AccountInfo<'info>,
+    verify_params: &VerifyParam,
+    expected_nonce: u64,
+    expected_pubkey: PasskeyPubkey,
+) -> Result<Vec<u8>> {
+    let ix: Instruction =
+        load_instruction_at_checked(instruction_index as usize, instruction_sysvar_account_info)?;
+
+    verify_secp256r1_ix(&ix, verify_params)?;
+
+    let VerifyParam {
+        msg,
+        pubkey: _,
+        sig: _,
+    } = verify_params;
+
+    let clock = Clock::get()?;
+
+    let current_time = clock.unix_timestamp;
+
+    // check if timestamp is in the future
+    if msg.timestamp > current_time + 30 * 1000 {
+        return Err(ContractError::InvalidTimestamp.into());
+    }
+
+    // check if timestamp is expired in 30 seconds
+    if current_time > msg.timestamp + 30 * 1000 {
+        return Err(ContractError::SignatureExpired.into());
+    }
+
+    // check if nonce is the same
+    if msg.nonce != expected_nonce {
+        return Err(ContractError::InvalidNonce.into());
+    }
+
+    // Check that pubkey is the creator of the smart wallet
+    if verify_params.pubkey != expected_pubkey {
+        return Err(ContractError::InvalidPubkey.into());
+    }
+
+    Ok(msg.payload.clone())
 }

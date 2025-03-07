@@ -28,7 +28,20 @@ solana-test-validator --clone-upgradeable-program EoTcMgcDRTJVZDMZWBoU6rhYHZfkNT
 ### Deploy the smart-contracts
 
 ```bash
-anchor deploy
+anchor build && anchor deploy && anchor idl init -f ./target/idl/contract.json <program-id>
+
+```
+
+### Init IDL
+
+```bash
+anchor idl init -f ./target/idl/contract.json <program-id>
+```
+
+### Update IDL
+
+```bash
+anchor idl upgrade 3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum -f ./target/idl/contract.json
 ```
 
 ### Test the smart-contracts
@@ -36,3 +49,5 @@ anchor deploy
 ```bash
 anchor run test
 ```
+
+### Signer and payer, must popup money to pda (Root pda must empty pda)

@@ -10,10 +10,7 @@ export const printSimulateInfo = () => {
   );
 };
 
-import {
-  AMM_STABLE,
-  DEVNET_PROGRAM_ID,
-} from '@raydium-io/raydium-sdk-v2';
+import { AMM_STABLE, DEVNET_PROGRAM_ID } from '@raydium-io/raydium-sdk-v2';
 import { AMM_PROGRAM_ID } from './config';
 
 const VALID_PROGRAM_ID = new Set([

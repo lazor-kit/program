@@ -1,9 +1,11 @@
 use anchor_lang::prelude::*;
 pub mod error;
 pub mod instructions;
-
+pub mod state;
 pub mod util;
+
 use instructions::*;
+pub use state::*;
 pub use util::*;
 
 declare_id!("3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum");
@@ -16,20 +18,14 @@ pub mod contract {
     // Initialize the smart wallet
     pub fn init_smart_wallet(
         ctx: Context<InitSmartWallet>,
-        pubkey: [u8; 33],
+        pubkey: PasskeyPubkey,
         id: u64,
     ) -> Result<()> {
         instructions::init_smart_wallet(ctx, pubkey, id)
     }
 
     // verify secp256r1 signature and execute instruction
-    pub fn verify_and_execute_instruction<'info>(
-        ctx: Context<Verify>,
-        pubkey: [u8; 33],
-        msg: Vec<u8>,
-        sig: [u8; 64],
-        data: Vec<u8>,
-    ) -> Result<()> {
-        instructions::verify_and_execute_instruction(ctx, pubkey, msg, sig, data)
+    pub fn execute_instruction(ctx: Context<Verify>, verify_params: VerifyParam) -> Result<()> {
+        instructions::execute_instruction(ctx, verify_params)
     }
 }
