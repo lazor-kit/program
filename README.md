@@ -3,6 +3,7 @@
 ## Overview
 
 ## Installation
+
 Install anchor cli and solana cli
 Link: [text](https://solana.com/docs/intro/installation)
 
@@ -28,14 +29,14 @@ solana-test-validator --clone-upgradeable-program EoTcMgcDRTJVZDMZWBoU6rhYHZfkNT
 ### Deploy the smart-contracts
 
 ```bash
-anchor build && anchor deploy && anchor idl init -f ./target/idl/contract.json <program-id>
+anchor build && anchor deploy && anchor idl init -f ./target/idl/contract.json 3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum
 
 ```
 
 ### Init IDL
 
 ```bash
-anchor idl init -f ./target/idl/contract.json <program-id>
+anchor idl init -f ./target/idl/contract.json 3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum
 ```
 
 ### Update IDL

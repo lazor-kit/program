@@ -11,7 +11,7 @@ contract = "3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "http://rpc.lazorkit.xyz:8899"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

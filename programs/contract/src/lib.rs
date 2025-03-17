@@ -24,8 +24,16 @@ pub mod contract {
         instructions::init_smart_wallet(ctx, pubkey, id)
     }
 
+    pub fn add_authenticator(
+        ctx: Context<AddAuthenticator>,
+        verify_param: VerifyParam,
+        new_passkey_pubkey: PasskeyPubkey,
+    ) -> Result<()> {
+        instructions::add_authenticator(ctx, verify_param, new_passkey_pubkey)
+    }
+
     // verify secp256r1 signature and execute instruction
-    pub fn execute_instruction(ctx: Context<Verify>, verify_params: VerifyParam) -> Result<()> {
-        instructions::execute_instruction(ctx, verify_params)
+    pub fn execute_instruction(ctx: Context<Verify>, verify_param: VerifyParam) -> Result<()> {
+        instructions::execute_instruction(ctx, verify_param)
     }
 }

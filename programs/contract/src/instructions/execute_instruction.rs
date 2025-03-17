@@ -1,23 +1,23 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program::invoke_signed;
-use crate::{ verify_authority, SmartWalletAuthority, SmartWalletData, VerifyParam, ID, SMART_WALLET_SEED};
+use crate::{ verify_authority, PasskeyExt as _, SmartWalletAuthority, SmartWalletData, VerifyParam, ID, SMART_WALLET_SEED};
 use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 use anchor_lang::solana_program::instruction::Instruction;
 
 
 pub fn execute_instruction(
     ctx: Context<Verify>,
-    verify_params: VerifyParam,
+    verify_param: VerifyParam,
 ) -> Result<()> {
     let smart_wallet = &ctx.accounts.smart_wallet;
-    let smart_wallet_data = &mut ctx.accounts.smart_wallet_data;
+    let smart_wallet_data = &ctx.accounts.smart_wallet_data;
     let smart_wallet_authority = &mut ctx.accounts.smart_wallet_authority;
     let cpi_program_key = &ctx.accounts.cpi_program;
 
     let instruction_data = verify_authority(
         0,
         &ctx.accounts.ix_sysvar,
-        &verify_params,
+        &verify_param,
         smart_wallet_authority.nonce,
         smart_wallet_authority.pubkey.clone(),
     )?;
@@ -55,6 +55,7 @@ pub fn execute_instruction(
 }
 
 #[derive(Accounts)]
+#[instruction(verify_param: VerifyParam)]
 pub struct Verify<'info> {
     /// CHECK: The address check is needed because otherwise
     /// the supplied Sysvar could be anything else.
@@ -65,6 +66,8 @@ pub struct Verify<'info> {
 
     #[account(
         mut,
+        seeds = [b"smart_wallet", &smart_wallet_data.id.to_le_bytes()],
+        bump = smart_wallet_data.bump,
         owner = ID,
     )]
     /// CHECK:
@@ -80,8 +83,9 @@ pub struct Verify<'info> {
     
     #[account(
         mut,
+        seeds = [&verify_param.pubkey.to_hashed_bytes(smart_wallet.key())], 
+        bump,
         owner = ID,
-        constraint = smart_wallet_authority.smart_wallet_pubkey == smart_wallet.key()
     )]
     pub smart_wallet_authority: Account<'info, SmartWalletAuthority>,
 

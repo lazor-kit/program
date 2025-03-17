@@ -1,4 +1,5 @@
 import { PublicKey, TransactionInstruction } from '@solana/web3.js';
+import { SECP256R1_NATIVE_PROGRAM } from './constant';
 
 // Constants from the Rust code
 const SIGNATURE_OFFSETS_SERIALIZED_SIZE = 14;
@@ -152,7 +153,7 @@ export function createSecp256r1Instruction(
 
     return new TransactionInstruction({
       keys: [],
-      programId: new PublicKey('Secp256r1SigVerify1111111111111111111111111'),
+      programId: SECP256R1_NATIVE_PROGRAM,
       data: Buffer.from(instructionData),
     });
   } catch (error) {

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ PasskeyPubkey, SmartWalletAuthority, SmartWalletData, SMART_WALLET_SEED};
+use crate::{ PasskeyExt as _, PasskeyPubkey, SmartWalletAuthority, SmartWalletData, SMART_WALLET_SEED};
 
 pub fn init_smart_wallet(ctx: Context<InitSmartWallet>, pubkey: PasskeyPubkey, id: u64) -> Result<()> {
     let smart_wallet_authority = &mut ctx.accounts.smart_wallet_authority;
@@ -42,16 +42,16 @@ pub struct InitSmartWallet<'info> {
         seeds = [SmartWalletData::PREFIX_SEED, smart_wallet.key().as_ref()], 
         bump,
     )]
-    pub smart_wallet_data: Account<'info, SmartWalletData>,
+    pub smart_wallet_data: Box<Account<'info, SmartWalletData>>,
 
     #[account(
         init, 
         payer = signer, 
         space = 8 + SmartWalletAuthority::INIT_SPACE, 
-        seeds = [SmartWalletAuthority::PREFIX_SEED, smart_wallet.key().as_ref(), id.to_le_bytes().as_ref()], 
+        seeds = [&pubkey.to_hashed_bytes(smart_wallet.key())], 
         bump
     )]
-    pub smart_wallet_authority: Account<'info, SmartWalletAuthority>,
+    pub smart_wallet_authority: Box<Account<'info, SmartWalletAuthority>>,
 
     pub system_program: Program<'info, System>,
 }

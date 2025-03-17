@@ -19,4 +19,4 @@ custom-heap = []
 anchor-debug = []
 
 [dependencies]
-anchor-lang = { version = "0.30.1", features = ["init-if-needed"]}
+anchor-lang = { version = "0.31.0", features = ["init-if-needed"]}

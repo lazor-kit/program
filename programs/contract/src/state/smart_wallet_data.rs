@@ -1,8 +1,22 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program::hash::hash};
 
-#[derive(Debug, AnchorSerialize, AnchorDeserialize, InitSpace, PartialEq, Clone)]
+#[derive(Debug, AnchorSerialize, AnchorDeserialize, InitSpace, PartialEq, Clone, Copy)]
 pub struct PasskeyPubkey {
     pub data: [u8; 33],
+}
+
+pub trait PasskeyExt {
+    fn to_hashed_bytes(&self, smart_wallet: Pubkey) -> [u8; 32];
+}
+
+impl PasskeyExt for PasskeyPubkey {
+    fn to_hashed_bytes(&self, smart_wallet: Pubkey) -> [u8; 32] {
+        let mut bytes = [0u8; 65];
+        bytes[..33].copy_from_slice(&self.data);
+        bytes[33..].copy_from_slice(&smart_wallet.to_bytes());
+        let hash = hash(&bytes);
+        hash.to_bytes()
+    }
 }
 
 #[derive(Debug, AnchorSerialize, AnchorDeserialize)]
