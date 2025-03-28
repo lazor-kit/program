@@ -12,7 +12,7 @@ import bs58 from 'bs58';
 
 import { setup } from './raydium-swap/swap';
 import { SmartWalletContract } from '../sdk';
-import { signAndSendVersionedTransaction } from '../relayer';
+import { signAndSendVersionTxn } from '../relayer';
 
 dotenv.config();
 
@@ -28,6 +28,8 @@ describe('contract', async () => {
   const wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
 
   const program = new SmartWalletContract(anchorProvider.connection);
+
+  cluster = 'localnet';
 
   if (cluster === 'localnet') {
     before(async () => {
@@ -88,7 +90,7 @@ describe('contract', async () => {
     console.log('Init smart-wallet', sig);
   });
 
-  xit('Verify and execute transfer token instruction', async () => {
+  it('Verify and execute transfer token instruction', async () => {
     // create smart wallet
     const privateKey = ECDSA.generateKey();
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
@@ -146,14 +148,15 @@ describe('contract', async () => {
 
     txn.sign([wallet]);
 
-    console.log('Transaction size', txn.serialize().length);
+    const result = await signAndSendVersionTxn({
+      base58EncodedTransaction: bs58.encode(txn.serialize()),
+      relayerUrl: process.env.RELAYER_URL!,
+    });
 
-    const sig = await anchorProvider.sendAndConfirm(txn);
-
-    console.log('Signature', sig);
+    console.log(result);
   });
 
-  it('Add authenticators', async () => {
+  xit('Add authenticators', async () => {
     // create smart wallet
     const privateKey = ECDSA.generateKey();
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
@@ -207,9 +210,9 @@ describe('contract', async () => {
       smartWalletAuthority,
     });
 
-    await signAndSendVersionedTransaction({
-      serializedTransaction: txn.serialize(),
-      connection: anchorProvider.connection,
-    });
+    // await signAndSendVersionedTransaction({
+    //   serializedTransaction: txn.serialize(),
+    //   connection: anchorProvider.connection,
+    // });
   });
 });

@@ -33,40 +33,6 @@ export async function signAndSendTxn({
   }
 }
 
-export async function estimateFee({
-  base58EncodedTransaction,
-  relayerUrl,
-  feeToken = 'So11111111111111111111111111111111111111112',
-}: {
-  base58EncodedTransaction: string;
-  relayerUrl: string;
-  feeToken?: string;
-}) {
-  const payload = {
-    jsonrpc: '2.0',
-    id: 1,
-    method: 'estimateTransactionFee',
-    params: [base58EncodedTransaction, feeToken],
-  };
-
-  try {
-    const response = await fetch(relayerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    console.log('Response:', data);
-    return data;
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
-  }
-}
-
 export async function signTransaction({
   base58EncodedTransaction,
   relayerUrl,
@@ -99,22 +65,33 @@ export async function signTransaction({
   }
 }
 
-export async function signAndSendVersionedTransaction({
-  serializedTransaction,
-  connection,
+export async function signAndSendVersionTxn({
+  base58EncodedTransaction,
+  relayerUrl,
 }: {
-  serializedTransaction: Uint8Array;
-  connection: Connection;
+  base58EncodedTransaction: string;
+  relayerUrl: string;
 }) {
-  const wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
+  const payload = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'signAndSendVersionedTransaction',
+    params: [base58EncodedTransaction],
+  };
 
-  const txn = VersionedTransaction.deserialize(serializedTransaction);
+  try {
+    const response = await fetch(relayerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
 
-  txn.sign([wallet]);
-
-  const sig = await connection.sendTransaction(txn, {
-    preflightCommitment: 'confirmed',
-  });
-
-  console.log('Signature:', sig);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
 }
