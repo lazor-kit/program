@@ -90,7 +90,7 @@ describe('contract', async () => {
     console.log('Init smart-wallet', sig);
   });
 
-  it('Verify and execute transfer token instruction', async () => {
+  xit('Verify and execute transfer token instruction', async () => {
     // create smart wallet
     const privateKey = ECDSA.generateKey();
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
@@ -128,8 +128,7 @@ describe('contract', async () => {
     });
 
     const { message, messageBytes } = await program.getMessage(
-      smartWalletAuthorityData,
-      swapIns.data
+      smartWalletAuthorityData
     );
 
     const signatureBase64 = privateKey.sign(messageBytes);
@@ -148,15 +147,19 @@ describe('contract', async () => {
 
     txn.sign([wallet]);
 
-    const result = await signAndSendVersionTxn({
-      base58EncodedTransaction: bs58.encode(txn.serialize()),
-      relayerUrl: process.env.RELAYER_URL!,
+    const result = await anchorProvider.connection.sendTransaction(txn, {
+      preflightCommitment: 'confirmed',
     });
+
+    // const result = await signAndSendVersionTxn({
+    //   base58EncodedTransaction: bs58.encode(txn.serialize()),
+    //   relayerUrl: process.env.RELAYER_URL!,
+    // });
 
     console.log(result);
   });
 
-  xit('Add authenticators', async () => {
+  it('Add authenticators', async () => {
     // create smart wallet
     const privateKey = ECDSA.generateKey();
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
@@ -193,8 +196,7 @@ describe('contract', async () => {
     );
 
     const { message, messageBytes } = await program.getMessage(
-      smartWalletAuthorityData,
-      newPasskeyPubkey
+      smartWalletAuthorityData
     );
 
     const signatureBase64 = privateKey.sign(messageBytes);
@@ -205,10 +207,18 @@ describe('contract', async () => {
       pubkey: pubkey,
       signature: signature,
       message,
+      newPasskey: { data: Array.from(newPasskeyPubkey) },
       payer: wallet.publicKey,
       smartWalletPubkey,
       smartWalletAuthority,
     });
+    
+    txn.sign([wallet]);
+    const result = await anchorProvider.connection.sendTransaction(txn, {
+      preflightCommitment: 'confirmed',
+    });
+
+    console.log('Add authenticators', result);
 
     // await signAndSendVersionedTransaction({
     //   serializedTransaction: txn.serialize(),

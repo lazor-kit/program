@@ -23,7 +23,6 @@ impl PasskeyExt for PasskeyPubkey {
 pub struct Message {
     pub nonce: u64,
     pub timestamp: i64,
-    pub payload: Vec<u8>,
 }
 
 #[derive(Debug, AnchorSerialize, AnchorDeserialize)]

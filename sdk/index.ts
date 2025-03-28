@@ -83,10 +83,7 @@ export class SmartWalletContract {
     );
   }
 
-  async getMessage(
-    smartWalletAuthorityData: SmartWalletAuthority,
-    payload: Buffer<ArrayBufferLike>
-  ): Promise<{
+  async getMessage(smartWalletAuthorityData: SmartWalletAuthority): Promise<{
     message: Message;
     messageBytes: Buffer<ArrayBufferLike>;
   }> {
@@ -96,7 +93,6 @@ export class SmartWalletContract {
     const message: Message = {
       nonce: smartWalletAuthorityData.nonce,
       timestamp: new anchor.BN(timestamp),
-      payload,
     };
 
     const messageBytes = this.program.coder.types.encode('message', message);
@@ -185,7 +181,7 @@ export class SmartWalletContract {
     };
 
     const executeInstruction = await this.program.methods
-      .executeInstruction(verifyParam)
+      .executeInstruction(verifyParam, arbitraryInstruction.data)
       .accountsPartial({
         smartWallet: smartWalletPubkey,
         smartWalletAuthority,
@@ -219,6 +215,7 @@ export class SmartWalletContract {
       signature,
       message,
       payer,
+      newPasskey,
       smartWalletPubkey,
       smartWalletAuthority,
     } = param;
@@ -238,14 +235,12 @@ export class SmartWalletContract {
     };
 
     const [newSmartWalletAuthorityPda] = PublicKey.findProgramAddressSync(
-      [this.hashSeeds(Array.from(message.payload), smartWalletPubkey)],
+      [this.hashSeeds(Array.from(newPasskey.data), smartWalletPubkey)],
       this.programId
     );
 
     const addAuthIns = await this.program.methods
-      .addAuthenticator(verifyParam, {
-        data: Array.from(message.payload),
-      })
+      .addAuthenticator(verifyParam, newPasskey)
       .accountsPartial({
         payer,
         smartWallet: smartWalletPubkey,

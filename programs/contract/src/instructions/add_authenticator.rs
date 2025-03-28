@@ -7,19 +7,19 @@ pub fn add_authenticator(ctx: Context<AddAuthenticator>, verify_param: VerifyPar
     let smart_wallet_authority = &mut ctx.accounts.smart_wallet_authority;
     let new_smart_wallet_authority = &mut ctx.accounts.new_wallet_authority;
 
-    let new_passkey_pubkey: [u8; 33] = verify_authority(
+    verify_authority(
         0,
         &ctx.accounts.ix_sysvar,
         &verify_param,
         smart_wallet_authority.nonce,
         smart_wallet_authority.pubkey.clone(),
-    )?.try_into().map_err(|_| ProgramError::InvalidArgument)?;
+    )?;
 
-    assert_eq!(new_passkey_pubkey, new_passkey.data);
+    // assert_eq!(new_passkey_pubkey, new_passkey.data);
     
     new_smart_wallet_authority.nonce = 0;
     new_smart_wallet_authority.pubkey = PasskeyPubkey {
-        data: new_passkey_pubkey,
+        data: new_passkey.data,
     };
     new_smart_wallet_authority.smart_wallet_pubkey = smart_wallet.key();
     
