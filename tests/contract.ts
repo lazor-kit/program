@@ -19,7 +19,7 @@ dotenv.config();
 let cluster: String;
 
 describe('contract', async () => {
-  cluster = 'https://rpc.lazorkit.xyz';
+  cluster = 'localnet';
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
@@ -28,8 +28,6 @@ describe('contract', async () => {
   const wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
 
   const program = new SmartWalletContract(anchorProvider.connection);
-
-  cluster = 'localnet';
 
   if (cluster === 'localnet') {
     before(async () => {
@@ -212,7 +210,7 @@ describe('contract', async () => {
       smartWalletPubkey,
       smartWalletAuthority,
     });
-    
+
     txn.sign([wallet]);
     const result = await anchorProvider.connection.sendTransaction(txn, {
       preflightCommitment: 'confirmed',
