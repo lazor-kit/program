@@ -28,6 +28,7 @@ export type AddAuthenticatorsParam = {
   signature: Buffer<ArrayBuffer>;
   message: Message;
   payer: PublicKey;
+  newPasskey: PasskeyPubkey;
   smartWalletPubkey: PublicKey;
   smartWalletAuthority: PublicKey;
 };

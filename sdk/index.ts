@@ -20,7 +20,8 @@ import {
 import { createSecp256r1Instruction, getID } from './utils';
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { LOOKUP_TABLE_ADDRESS, SMART_WALLET_SEED } from './constant';
-import crypto from 'crypto';
+import { sha256 } from 'js-sha256';
+
 export class SmartWalletContract {
   constructor(private readonly connection: Connection) {}
 
@@ -83,10 +84,7 @@ export class SmartWalletContract {
     );
   }
 
-  async getMessage(
-    smartWalletAuthorityData: SmartWalletAuthority,
-    payload: Buffer<ArrayBufferLike>
-  ): Promise<{
+  async getMessage(smartWalletAuthorityData: SmartWalletAuthority): Promise<{
     message: Message;
     messageBytes: Buffer<ArrayBufferLike>;
   }> {
@@ -96,7 +94,6 @@ export class SmartWalletContract {
     const message: Message = {
       nonce: smartWalletAuthorityData.nonce,
       timestamp: new anchor.BN(timestamp),
-      payload,
     };
 
     const messageBytes = this.program.coder.types.encode('message', message);
@@ -185,7 +182,7 @@ export class SmartWalletContract {
     };
 
     const executeInstruction = await this.program.methods
-      .executeInstruction(verifyParam)
+      .executeInstruction(verifyParam, arbitraryInstruction.data)
       .accountsPartial({
         smartWallet: smartWalletPubkey,
         smartWalletAuthority,
@@ -219,6 +216,7 @@ export class SmartWalletContract {
       signature,
       message,
       payer,
+      newPasskey,
       smartWalletPubkey,
       smartWalletAuthority,
     } = param;
@@ -238,14 +236,12 @@ export class SmartWalletContract {
     };
 
     const [newSmartWalletAuthorityPda] = PublicKey.findProgramAddressSync(
-      [this.hashSeeds(Array.from(message.payload), smartWalletPubkey)],
+      [this.hashSeeds(Array.from(newPasskey.data), smartWalletPubkey)],
       this.programId
     );
 
     const addAuthIns = await this.program.methods
-      .addAuthenticator(verifyParam, {
-        data: Array.from(message.payload),
-      })
+      .addAuthenticator(verifyParam, newPasskey)
       .accountsPartial({
         payer,
         smartWallet: smartWalletPubkey,
@@ -277,7 +273,8 @@ export class SmartWalletContract {
 
   // hash with crypto
   hashSeeds(passkey: number[], smartWallet: PublicKey): Buffer {
-    const data = Buffer.concat([Buffer.from(passkey), smartWallet.toBuffer()]);
-    return crypto.createHash('sha256').update(data).digest().subarray(0, 32);
+    const rawBuffer = Buffer.concat([ Buffer.from(passkey), smartWallet.toBuffer()]);
+    const hash = sha256.arrayBuffer(rawBuffer); 
+    return Buffer.from(hash).subarray(0, 32);
   }
 }

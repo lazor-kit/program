@@ -33,7 +33,11 @@ pub mod contract {
     }
 
     // verify secp256r1 signature and execute instruction
-    pub fn execute_instruction(ctx: Context<Verify>, verify_param: VerifyParam) -> Result<()> {
-        instructions::execute_instruction(ctx, verify_param)
+    pub fn execute_instruction(
+        ctx: Context<Verify>,
+        verify_param: VerifyParam,
+        instruction_data: Vec<u8>,
+    ) -> Result<()> {
+        instructions::execute_instruction(ctx, verify_param, instruction_data)
     }
 }

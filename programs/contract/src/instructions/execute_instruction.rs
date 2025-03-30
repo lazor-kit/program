@@ -8,13 +8,14 @@ use anchor_lang::solana_program::instruction::Instruction;
 pub fn execute_instruction(
     ctx: Context<Verify>,
     verify_param: VerifyParam,
+    instruction_data: Vec<u8>,
 ) -> Result<()> {
     let smart_wallet = &ctx.accounts.smart_wallet;
     let smart_wallet_data = &ctx.accounts.smart_wallet_data;
     let smart_wallet_authority = &mut ctx.accounts.smart_wallet_authority;
     let cpi_program_key = &ctx.accounts.cpi_program;
 
-    let instruction_data = verify_authority(
+    verify_authority(
         0,
         &ctx.accounts.ix_sysvar,
         &verify_param,

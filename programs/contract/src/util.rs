@@ -77,7 +77,7 @@ pub fn verify_authority<'info>(
     verify_params: &VerifyParam,
     expected_nonce: u64,
     expected_pubkey: PasskeyPubkey,
-) -> Result<Vec<u8>> {
+) -> Result<()> {
     let ix: Instruction =
         load_instruction_at_checked(instruction_index as usize, instruction_sysvar_account_info)?;
 
@@ -113,5 +113,5 @@ pub fn verify_authority<'info>(
         return Err(ContractError::InvalidPubkey.into());
     }
 
-    Ok(msg.payload.clone())
+    Ok(())
 }
