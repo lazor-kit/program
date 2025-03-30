@@ -20,7 +20,8 @@ import {
 import { createSecp256r1Instruction, getID } from './utils';
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 import { LOOKUP_TABLE_ADDRESS, SMART_WALLET_SEED } from './constant';
-import crypto from 'crypto';
+import { sha256 } from 'js-sha256';
+
 export class SmartWalletContract {
   constructor(private readonly connection: Connection) {}
 
@@ -272,7 +273,8 @@ export class SmartWalletContract {
 
   // hash with crypto
   hashSeeds(passkey: number[], smartWallet: PublicKey): Buffer {
-    const data = Buffer.concat([Buffer.from(passkey), smartWallet.toBuffer()]);
-    return crypto.createHash('sha256').update(data).digest().subarray(0, 32);
+    const rawBuffer = Buffer.concat([ Buffer.from(passkey), smartWallet.toBuffer()]);
+    const hash = sha256.arrayBuffer(rawBuffer); 
+    return Buffer.from(hash).subarray(0, 32);
   }
 }
