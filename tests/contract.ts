@@ -12,7 +12,6 @@ import bs58 from 'bs58';
 
 import { setup } from './raydium-swap/swap';
 import { SmartWalletContract } from '../sdk';
-import { signAndSendVersionTxn } from '../relayer';
 
 dotenv.config();
 
@@ -83,12 +82,14 @@ describe('contract', async () => {
       payer: wallet.publicKey,
     });
 
+    txn.partialSign(wallet);
+
     const sig = await anchorProvider.sendAndConfirm(txn, [wallet]);
 
     console.log('Init smart-wallet', sig);
   });
 
-  xit('Verify and execute transfer token instruction', async () => {
+  it('Verify and execute transfer token instruction', async () => {
     // create smart wallet
     const privateKey = ECDSA.generateKey();
     const publicKeyBase64 = privateKey.toCompressedPublicKey();
@@ -147,7 +148,10 @@ describe('contract', async () => {
 
     const result = await anchorProvider.connection.sendTransaction(txn, {
       preflightCommitment: 'confirmed',
+      skipPreflight: true,
     });
+
+    await anchorProvider.connection.confirmTransaction(result);
 
     // const result = await signAndSendVersionTxn({
     //   base58EncodedTransaction: bs58.encode(txn.serialize()),
@@ -157,70 +161,70 @@ describe('contract', async () => {
     console.log(result);
   });
 
-  it('Add authenticators', async () => {
-    // create smart wallet
-    const privateKey = ECDSA.generateKey();
-    const publicKeyBase64 = privateKey.toCompressedPublicKey();
-    const pubkey = Buffer.from(publicKeyBase64, 'base64');
+  // it('Add authenticators', async () => {
+  //   // create smart wallet
+  //   const privateKey = ECDSA.generateKey();
+  //   const publicKeyBase64 = privateKey.toCompressedPublicKey();
+  //   const pubkey = Buffer.from(publicKeyBase64, 'base64');
 
-    const createWalletSig = await anchorProvider.sendAndConfirm(
-      await program.createInitSmartWalletTransaction({
-        secp256r1PubkeyBytes: Array.from(pubkey),
-        payer: wallet.publicKey,
-      }),
-      [wallet]
-    );
+  //   const createWalletSig = await anchorProvider.sendAndConfirm(
+  //     await program.createInitSmartWalletTransaction({
+  //       secp256r1PubkeyBytes: Array.from(pubkey),
+  //       payer: wallet.publicKey,
+  //     }),
+  //     [wallet]
+  //   );
 
-    console.log('Create smart wallet: ', createWalletSig);
+  //   console.log('Create smart wallet: ', createWalletSig);
 
-    const listSmartWalletAuthority =
-      await program.getListSmartWalletAuthorityByPasskeyPubkey({
-        data: Array.from(pubkey),
-      });
+  //   const listSmartWalletAuthority =
+  //     await program.getListSmartWalletAuthorityByPasskeyPubkey({
+  //       data: Array.from(pubkey),
+  //     });
 
-    const smartWalletAuthority = listSmartWalletAuthority[0];
+  //   const smartWalletAuthority = listSmartWalletAuthority[0];
 
-    const smartWalletAuthorityData = await program.getSmartWalletAuthorityData(
-      smartWalletAuthority
-    );
+  //   const smartWalletAuthorityData = await program.getSmartWalletAuthorityData(
+  //     smartWalletAuthority
+  //   );
 
-    const smartWalletPubkey = smartWalletAuthorityData.smartWalletPubkey;
+  //   const smartWalletPubkey = smartWalletAuthorityData.smartWalletPubkey;
 
-    console.log('Smart wallet pubkey', smartWalletPubkey.toBase58());
+  //   console.log('Smart wallet pubkey', smartWalletPubkey.toBase58());
 
-    const newPasskeyPubkey = Buffer.from(
-      ECDSA.generateKey().toCompressedPublicKey(),
-      'base64'
-    );
+  //   const newPasskeyPubkey = Buffer.from(
+  //     ECDSA.generateKey().toCompressedPublicKey(),
+  //     'base64'
+  //   );
 
-    const { message, messageBytes } = await program.getMessage(
-      smartWalletAuthorityData
-    );
+  //   const { message, messageBytes } = await program.getMessage(
+  //     smartWalletAuthorityData
+  //   );
 
-    const signatureBase64 = privateKey.sign(messageBytes);
+  //   const signatureBase64 = privateKey.sign(messageBytes);
 
-    let signature = Buffer.from(signatureBase64, 'base64');
+  //   let signature = Buffer.from(signatureBase64, 'base64');
 
-    const txn = await program.addAuthenticatorsTxn({
-      pubkey: pubkey,
-      signature: signature,
-      message,
-      newPasskey: { data: Array.from(newPasskeyPubkey) },
-      payer: wallet.publicKey,
-      smartWalletPubkey,
-      smartWalletAuthority,
-    });
+  //   const txn = await program.addAuthenticatorsTxn({
+  //     pubkey: pubkey,
+  //     signature: signature,
+  //     message,
+  //     newPasskey: { data: Array.from(newPasskeyPubkey) },
+  //     payer: wallet.publicKey,
+  //     smartWalletPubkey,
+  //     smartWalletAuthority,
+  //   });
 
-    txn.sign([wallet]);
-    const result = await anchorProvider.connection.sendTransaction(txn, {
-      preflightCommitment: 'confirmed',
-    });
+  //   txn.sign([wallet]);
+  //   const result = await anchorProvider.connection.sendTransaction(txn, {
+  //     preflightCommitment: 'confirmed',
+  //   });
 
-    console.log('Add authenticators', result);
+  //   console.log('Add authenticators', result);
 
-    // await signAndSendVersionedTransaction({
-    //   serializedTransaction: txn.serialize(),
-    //   connection: anchorProvider.connection,
-    // });
-  });
+  //   // await signAndSendVersionedTransaction({
+  //   //   serializedTransaction: txn.serialize(),
+  //   //   connection: anchorProvider.connection,
+  //   // });
+  // });
 });
