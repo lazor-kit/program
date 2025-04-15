@@ -1,9 +1,8 @@
-# Smart-wallet with Secp256k1 signature verification
+# Lazorkit | Programm
 
 ## Overview
 
-Write overview for the project copilot
-
+Onchain program for Secp256r1 verification and exercute transaction, management smart wallet
 
 ## Installation
 
@@ -36,22 +35,8 @@ anchor build && anchor deploy && anchor idl init -f ./target/idl/contract.json 3
 
 ```
 
-### Init IDL
-
-```bash
-anchor idl init -f ./target/idl/contract.json 3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum
-```
-
-### Update IDL
-
-```bash
-anchor idl upgrade 3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum -f ./target/idl/contract.json
-```
-
 ### Test the smart-contracts
 
 ```bash
 anchor run test
 ```
-
-### Signer and payer, must popup money to pda (Root pda must empty pda)
