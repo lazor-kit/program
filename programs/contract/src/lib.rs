@@ -3,6 +3,7 @@ pub mod error;
 pub mod instructions;
 pub mod state;
 pub mod util;
+pub mod constants;
 
 use instructions::*;
 pub use state::*;

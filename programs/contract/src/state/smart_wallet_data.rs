@@ -45,5 +45,3 @@ pub struct SmartWalletData {
 impl SmartWalletData {
     pub const PREFIX_SEED: &'static [u8] = b"smart_wallet_data";
 }
-
-pub const SMART_WALLET_SEED: &'static [u8] = b"smart_wallet";
