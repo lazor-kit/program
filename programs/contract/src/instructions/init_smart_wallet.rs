@@ -26,9 +26,6 @@ pub struct InitSmartWallet<'info> {
     pub signer: Signer<'info>,
 
     #[account(
-        init,
-        payer = signer,
-        space = 0,
         seeds = [SMART_WALLET_SEED, id.to_le_bytes().as_ref()],
         bump,
     )]
@@ -38,7 +35,7 @@ pub struct InitSmartWallet<'info> {
     #[account(
         init,
         payer = signer,
-        space = 8 + SmartWalletData::INIT_SPACE,
+        space = SmartWalletData::DISCRIMINATOR.len() + SmartWalletData::INIT_SPACE,
         seeds = [SmartWalletData::PREFIX_SEED, smart_wallet.key().as_ref()], 
         bump,
     )]
@@ -47,7 +44,7 @@ pub struct InitSmartWallet<'info> {
     #[account(
         init, 
         payer = signer, 
-        space = 8 + SmartWalletAuthority::INIT_SPACE, 
+        space = SmartWalletAuthority::DISCRIMINATOR.len() + SmartWalletAuthority::INIT_SPACE, 
         seeds = [&pubkey.to_hashed_bytes(smart_wallet.key())], 
         bump
     )]

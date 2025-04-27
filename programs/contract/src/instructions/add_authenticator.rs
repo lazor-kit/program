@@ -64,7 +64,7 @@ pub struct AddAuthenticator<'info> {
     #[account(
         init,
         payer = payer,
-        space = 8 + SmartWalletAuthority::INIT_SPACE,
+        space = SmartWalletAuthority::DISCRIMINATOR.len() + SmartWalletAuthority::INIT_SPACE,
         seeds = [&new_passkey.to_hashed_bytes(smart_wallet.key())], 
         bump
     )]
