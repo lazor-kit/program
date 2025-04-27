@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program::invoke_signed;
-use crate::{ verify_authority, PasskeyExt as _, SmartWalletAuthority, SmartWalletData, VerifyParam, ID, SMART_WALLET_SEED};
+use crate::constants::SMART_WALLET_SEED;
+use crate::{ verify_authority, PasskeyExt as _, SmartWalletAuthority, SmartWalletData, VerifyParam, ID};
 use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 use anchor_lang::solana_program::instruction::Instruction;
 
@@ -67,7 +68,7 @@ pub struct Verify<'info> {
 
     #[account(
         mut,
-        seeds = [b"smart_wallet", &smart_wallet_data.id.to_le_bytes()],
+        seeds = [SMART_WALLET_SEED, &smart_wallet_data.id.to_le_bytes()],
         bump = smart_wallet_data.bump,
         owner = ID,
     )]

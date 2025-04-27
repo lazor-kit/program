@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ PasskeyExt as _, PasskeyPubkey, SmartWalletAuthority, SmartWalletData, SMART_WALLET_SEED};
+use crate::{ constants::SMART_WALLET_SEED, PasskeyExt as _, PasskeyPubkey, SmartWalletAuthority, SmartWalletData};
 
 pub fn init_smart_wallet(ctx: Context<InitSmartWallet>, pubkey: PasskeyPubkey, id: u64) -> Result<()> {
     let smart_wallet_authority = &mut ctx.accounts.smart_wallet_authority;

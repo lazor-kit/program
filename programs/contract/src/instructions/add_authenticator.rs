@@ -1,6 +1,6 @@
 use anchor_lang::{prelude::*, solana_program::sysvar::instructions::ID as IX_ID};
 
-use crate::{verify_authority, PasskeyExt as _, PasskeyPubkey, SmartWalletAuthority, SmartWalletData, VerifyParam, ID};
+use crate::{constants::SMART_WALLET_SEED, verify_authority, PasskeyExt as _, PasskeyPubkey, SmartWalletAuthority, SmartWalletData, VerifyParam, ID};
 
 pub fn add_authenticator(ctx: Context<AddAuthenticator>, verify_param: VerifyParam, new_passkey: PasskeyPubkey) -> Result<()> {
     let smart_wallet = &ctx.accounts.smart_wallet;
@@ -38,7 +38,7 @@ pub struct AddAuthenticator<'info> {
 
     #[account(
         mut,
-        seeds = [b"smart_wallet", &smart_wallet_data.id.to_le_bytes()],
+        seeds = [SMART_WALLET_SEED, &smart_wallet_data.id.to_le_bytes()],
         bump = smart_wallet_data.bump,
         owner = ID,
     )]
