@@ -1,4 +1,4 @@
-# Lazorkit | Programm
+# Lazorkit | Program
 
 ## Overview
 
