@@ -9,7 +9,7 @@ pub mod utils;
 use constants::PASSKEY_SIZE;
 use instructions::*;
 
-declare_id!("DAcTNgSppWiDvfTWa7PMvPmXHAs5DfBnrqRQme8fXJBb");
+declare_id!("HPN843A4SZB7tfcLF9pu6hbvwTgv7HtdRscXoZWbAdXs");
 
 /// The Lazor Kit program provides smart wallet functionality with passkey authentication
 #[program]

@@ -6,7 +6,7 @@ mod state;
 
 use instructions::*;
 
-declare_id!("HjgdxTNPqpL59KLRVDwQ28cqam2SxBirnNN5SFAFGHZ8");
+declare_id!("Dy9SC7En4NsVPYuiDdPJMCxfsV2Vd11YqtLVYabApzXb");
 
 #[program]
 pub mod transfer_limit {
