@@ -19,4 +19,4 @@ idl-build = ["anchor-lang/idl-build"]
 
 [dependencies]
 anchor-lang = { version = "0.31.1", features = ["init-if-needed"] }
-lazorkit = { path = "../lazorkit", features = ["no-entrypoint", "cpi"] }
+lazorkit = { path = "../lazorkit", features = ["cpi"] }
