@@ -8,7 +8,7 @@ use crate::utils::{
 };
 use crate::{
     constants::{SMART_WALLET_SEED, SOL_TRANSFER_DISCRIMINATOR},
-    error::LazorKitError,
+    errors::LazorKitError,
     state::{SmartWalletAuthenticator, SmartWalletConfig, WhitelistRulePrograms},
     ID,
 };

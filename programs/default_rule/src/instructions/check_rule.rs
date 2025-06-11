@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{error::DefaultRuleError, state::Rule};
+use crate::{errors::DefaultRuleError, state::Rule};
 
 pub fn check_rule(_ctx: Context<CheckRule>) -> Result<()> {
     Ok(())

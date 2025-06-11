@@ -1,5 +1,5 @@
 use crate::constants::{PASSKEY_SIZE, SECP256R1_ID};
-use crate::{error::LazorKitError, ID};
+use crate::{errors::LazorKitError, ID};
 use anchor_lang::solana_program::{
     instruction::Instruction,
     program::{invoke, invoke_signed},
