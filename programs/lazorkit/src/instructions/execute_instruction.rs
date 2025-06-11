@@ -54,13 +54,6 @@ pub fn execute_instruction(
     let payer = &ctx.accounts.payer;
     let payer_balance_before = payer.lamports();
 
-    // --- Passkey and wallet validation ---
-    require!(
-        authenticator.passkey_pubkey == args.passkey_pubkey
-            && authenticator.smart_wallet == ctx.accounts.smart_wallet.key(),
-        LazorKitError::InvalidPasskey
-    );
-
     // --- Signature verification using secp256r1 ---
     let secp_ix = load_instruction_at_checked(
         args.verify_instruction_index as usize,
@@ -286,6 +279,8 @@ pub struct ExecuteInstruction<'info> {
     #[account(
         seeds = [args.passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump = smart_wallet_authenticator.bump,
+        has_one = smart_wallet @ LazorKitError::InvalidAuthenticator,
+        constraint = smart_wallet_authenticator.passkey_pubkey == args.passkey_pubkey @ LazorKitError::InvalidPasskey,
     )]
     pub smart_wallet_authenticator: Box<Account<'info, SmartWalletAuthenticator>>,
 
