@@ -295,6 +295,7 @@ pub struct ExecuteInstruction<'info> {
     pub whitelist_rule_programs: Box<Account<'info, WhitelistRulePrograms>>,
 
     /// CHECK: Used for rule CPI.
+    #[account(executable)]
     pub authenticator_program: UncheckedAccount<'info>,
 
     /// CHECK: Instructions sysvar
@@ -303,6 +304,7 @@ pub struct ExecuteInstruction<'info> {
     pub system_program: Program<'info, System>,
 
     /// CHECK: Used for CPI, not deserialized.
+    #[account(executable)]
     pub cpi_program: UncheckedAccount<'info>,
 
     #[account(

@@ -108,10 +108,11 @@ pub struct CreateSmartWallet<'info> {
     )]
     pub config: Box<Account<'info, Config>>,
 
+    /// CHECK: Default Rule Program
     #[account(
-        address = config.default_rule_program
+        address = config.default_rule_program,
+        executable
     )]
-    /// CHECK:
     pub default_rule_program: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
