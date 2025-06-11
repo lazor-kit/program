@@ -1,5 +1,6 @@
 use anchor_lang::{prelude::*, solana_program::sysvar::instructions::load_instruction_at_checked};
 
+use crate::constants::PASSKEY_SIZE;
 use crate::state::Config;
 use crate::utils::{
     check_whitelist, execute_cpi, get_pda_signer, sighash, transfer_sol_from_pda,
@@ -25,14 +26,14 @@ pub enum Action {
 /// Arguments for the execute_instruction entrypoint
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct ExecuteInstructionArgs {
-    pub passkey_pubkey: [u8; 33],
+    pub passkey_pubkey: [u8; PASSKEY_SIZE],
     pub signature: Vec<u8>,
     pub message: Vec<u8>,
     pub verify_instruction_index: u8,
     pub rule_data: CpiData,
     pub cpi_data: Option<CpiData>,
     pub action: Action,
-    pub create_new_authenticator: Option<[u8; 33]>,
+    pub create_new_authenticator: Option<[u8; PASSKEY_SIZE]>,
 }
 
 /// Data for a CPI call (instruction data and account slice)
@@ -311,7 +312,7 @@ pub struct ExecuteInstruction<'info> {
         init,
         payer = payer,
         space = SmartWalletAuthenticator::DISCRIMINATOR.len() + SmartWalletAuthenticator::INIT_SPACE,
-        seeds = [args.create_new_authenticator.unwrap_or([0; 33]).to_hashed_bytes(smart_wallet.key()).as_ref()],
+        seeds = [args.create_new_authenticator.unwrap_or([0; PASSKEY_SIZE]).to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump,
     )]
     pub new_smart_wallet_authenticator: Option<Account<'info, SmartWalletAuthenticator>>,

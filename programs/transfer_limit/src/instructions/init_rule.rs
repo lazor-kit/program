@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use lazorkit::{
-    constants::SMART_WALLET_SEED,
+    constants::{PASSKEY_SIZE, SMART_WALLET_SEED},
     program::Lazorkit,
     state::{SmartWalletAuthenticator, SmartWalletConfig},
     utils::PasskeyExt,
@@ -10,7 +10,7 @@ use crate::state::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct InitRuleArgs {
-    pub passkey_pubkey: [u8; 33],
+    pub passkey_pubkey: [u8; PASSKEY_SIZE],
     pub token: Option<Pubkey>,
     pub limit_amount: u64,
     pub limit_period: u64,
