@@ -8,9 +8,8 @@ pub fn destroy(_ctx: Context<Destroy>) -> Result<()> {
 
 #[derive(Accounts)]
 pub struct Destroy<'info> {
-    /// CHECK
+    /// CHECK: Smart Wallet
     pub smart_wallet: UncheckedAccount<'info>,
-    /// CHECK
     pub smart_wallet_authenticator: Signer<'info>,
     #[account(
         mut,

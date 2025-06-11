@@ -51,7 +51,7 @@ pub struct AddMember<'info> {
     #[account(
         owner = lazorkit.key(),
     )]
-    /// CHECK:
+    /// CHECK: Smart Wallet Authenticator
     pub new_smart_wallet_authenticator: UncheckedAccount<'info>,
 
     #[account(

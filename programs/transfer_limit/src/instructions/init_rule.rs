@@ -49,7 +49,7 @@ pub struct InitRule<'info> {
         bump,
         seeds::program = lazorkit.key(), // LazorKit ID
     )]
-    /// CHECK
+    /// CHECK: Smart Wallet
     pub smart_wallet: UncheckedAccount<'info>,
 
     #[account(

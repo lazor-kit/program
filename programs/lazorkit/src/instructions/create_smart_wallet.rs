@@ -61,7 +61,6 @@ pub struct CreateSmartWallet<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// CHECK: This account is only used for its public key and seeds.
     #[account(
         mut,
         seeds = [SmartWalletSeq::PREFIX_SEED],
