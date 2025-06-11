@@ -17,10 +17,9 @@ pub struct InitRule<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
-    /// CHECK:
+    /// CHECK: Smart Wallet
     pub smart_wallet: UncheckedAccount<'info>,
 
-    /// CHECK
     pub smart_wallet_authenticator: Signer<'info>,
 
     #[account(
