@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     constants::AUTHORITY_SEED,
-    error::LazorKitError,
+    errors::LazorKitError,
     state::{Config, SmartWalletSeq, WhitelistRulePrograms},
 };
 

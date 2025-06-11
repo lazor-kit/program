@@ -1,4 +1,4 @@
-use crate::error::DefaultRuleError;
+use crate::errors::DefaultRuleError;
 use crate::state::Rule;
 use anchor_lang::prelude::*;
 
