@@ -5,6 +5,7 @@ mod instructions;
 mod state;
 
 use instructions::*;
+use lazorkit::constants::PASSKEY_SIZE;
 
 declare_id!("Dy9SC7En4NsVPYuiDdPJMCxfsV2Vd11YqtLVYabApzXb");
 
@@ -23,7 +24,10 @@ pub mod transfer_limit {
     }
 
     #[instruction(discriminator = 3)]
-    pub fn add_member(ctx: Context<AddMember>, new_passkey_pubkey: [u8; 33]) -> Result<()> {
+    pub fn add_member(
+        ctx: Context<AddMember>,
+        new_passkey_pubkey: [u8; PASSKEY_SIZE],
+    ) -> Result<()> {
         instructions::add_member(ctx, new_passkey_pubkey)
     }
 

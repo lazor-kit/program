@@ -1,4 +1,4 @@
-use crate::constants::SECP256R1_ID;
+use crate::constants::{PASSKEY_SIZE, SECP256R1_ID};
 use crate::{error::LazorKitError, ID};
 use anchor_lang::solana_program::{
     instruction::Instruction,
@@ -200,7 +200,7 @@ pub fn get_account_slice<'a>(
 }
 
 /// Helper: Create a PDA signer struct
-pub fn get_pda_signer(passkey: &[u8; 33], wallet: Pubkey, bump: u8) -> PdaSigner {
+pub fn get_pda_signer(passkey: &[u8; PASSKEY_SIZE], wallet: Pubkey, bump: u8) -> PdaSigner {
     PdaSigner {
         seeds: passkey.to_hashed_bytes(wallet).to_vec(),
         bump,

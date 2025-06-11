@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
-use lazorkit::{program::Lazorkit, state::SmartWalletAuthenticator, utils::PasskeyExt};
+use lazorkit::{
+    constants::PASSKEY_SIZE, program::Lazorkit, state::SmartWalletAuthenticator, utils::PasskeyExt,
+};
 
 use crate::state::{Member, MemberType};
 
@@ -8,7 +10,7 @@ pub struct AddMemberArgs {
     pub member: Pubkey,
 }
 
-pub fn add_member(ctx: Context<AddMember>, _new_passkey_pubkey: [u8; 33]) -> Result<()> {
+pub fn add_member(ctx: Context<AddMember>, _new_passkey_pubkey: [u8; PASSKEY_SIZE]) -> Result<()> {
     let member = &mut ctx.accounts.member;
     let new_smart_wallet_authenticator = &mut ctx.accounts.new_smart_wallet_authenticator;
     let smart_wallet_authenticator = &mut ctx.accounts.smart_wallet_authenticator;
@@ -25,7 +27,7 @@ pub fn add_member(ctx: Context<AddMember>, _new_passkey_pubkey: [u8; 33]) -> Res
 }
 
 #[derive(Accounts)]
-#[instruction(new_passkey_pubkey: [u8; 33])]
+#[instruction(new_passkey_pubkey: [u8; PASSKEY_SIZE])]
 pub struct AddMember<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
