@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     constants::AUTHORITY_SEED,
+    error::LazorKitError,
     state::{Config, SmartWalletSeq, WhitelistRulePrograms},
 };
 
@@ -76,8 +77,8 @@ pub struct Initialize<'info> {
 
     /// CHECK: Default Rule Program
     #[account(
-        address = config.default_rule_program,
-        executable
+        address = config.default_rule_program @ LazorKitError::InvalidRuleProgram,
+        executable,
     )]
     pub default_rule_program: UncheckedAccount<'info>,
 

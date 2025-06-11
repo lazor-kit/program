@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{error::RuleError, state::Rule};
+use crate::{error::DefaultRuleError, state::Rule};
 
 pub fn check_rule(_ctx: Context<CheckRule>) -> Result<()> {
     Ok(())
@@ -11,8 +11,7 @@ pub struct CheckRule<'info> {
     pub smart_wallet_authenticator: Signer<'info>,
 
     #[account(
-        mut,
-        constraint = smart_wallet_authenticator.key() == rule.admin @ RuleError::UnAuthorize,
+        constraint = smart_wallet_authenticator.key() == rule.admin @ DefaultRuleError::InvalidAuthenticator,
     )]
     pub rule: Account<'info, Rule>,
 }
