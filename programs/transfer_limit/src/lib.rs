@@ -23,12 +23,8 @@ pub mod transfer_limit {
     }
 
     #[instruction(discriminator = 3)]
-    pub fn add_member(
-        ctx: Context<AddMember>,
-        new_passkey_pubkey: [u8; 33],
-        bump: u8,
-    ) -> Result<()> {
-        instructions::add_member(ctx, new_passkey_pubkey, bump)
+    pub fn add_member(ctx: Context<AddMember>, new_passkey_pubkey: [u8; 33]) -> Result<()> {
+        instructions::add_member(ctx, new_passkey_pubkey)
     }
 
     #[instruction(discriminator = 4)]
