@@ -14,9 +14,6 @@ pub fn upsert_whitelist_rule_programs(
 
 #[derive(Accounts)]
 pub struct UpsertWhitelistRulePrograms<'info> {
-    #[account(mut)]
-    pub signer: Signer<'info>,
-
     #[account(
         mut,
         seeds = [WhitelistRulePrograms::PREFIX_SEED],

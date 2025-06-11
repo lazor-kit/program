@@ -2,9 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     constants::{PASSKEY_SIZE, SMART_WALLET_SEED},
-    state::{
-        Config, SmartWalletAuthenticator, SmartWalletConfig, SmartWalletSeq, WhitelistRulePrograms,
-    },
+    state::{Config, SmartWalletAuthenticator, SmartWalletConfig, SmartWalletSeq},
     utils::{execute_cpi, transfer_sol_from_pda, PasskeyExt, PdaSigner},
 };
 
@@ -67,12 +65,6 @@ pub struct CreateSmartWallet<'info> {
         bump,
     )]
     pub smart_wallet_seq: Account<'info, SmartWalletSeq>,
-
-    #[account(
-        seeds = [WhitelistRulePrograms::PREFIX_SEED],
-        bump,
-    )]
-    pub whitelist_rule_programs: Account<'info, WhitelistRulePrograms>,
 
     #[account(
         init,

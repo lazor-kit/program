@@ -1,6 +1,5 @@
 use crate::state::Rule;
 use anchor_lang::prelude::*;
-use lazorkit::program::Lazorkit;
 
 pub fn init_rule(ctx: Context<InitRule>) -> Result<()> {
     let rule = &mut ctx.accounts.rule;
@@ -30,8 +29,6 @@ pub struct InitRule<'info> {
         bump,
     )]
     pub rule: Account<'info, Rule>,
-
-    pub lazorkit: Program<'info, Lazorkit>,
 
     pub system_program: Program<'info, System>,
 }
