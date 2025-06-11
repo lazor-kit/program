@@ -62,7 +62,7 @@ pub struct CreateSmartWallet<'info> {
     #[account(
         mut,
         seeds = [SmartWalletSeq::PREFIX_SEED],
-        bump,
+        bump = smart_wallet_seq.bump,
     )]
     pub smart_wallet_seq: Account<'info, SmartWalletSeq>,
 
@@ -71,7 +71,7 @@ pub struct CreateSmartWallet<'info> {
         payer = payer,
         space = 0,
         seeds = [SMART_WALLET_SEED, smart_wallet_seq.seq.to_le_bytes().as_ref()],
-        bump
+        bump,
     )]
     /// CHECK: This account is only used for its public key and seeds.
     pub smart_wallet: UncheckedAccount<'info>,
@@ -81,7 +81,7 @@ pub struct CreateSmartWallet<'info> {
         payer = payer,
         space = SmartWalletConfig::DISCRIMINATOR.len() + SmartWalletConfig::INIT_SPACE,
         seeds = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
-        bump
+        bump,
     )]
     pub smart_wallet_config: Box<Account<'info, SmartWalletConfig>>,
 
@@ -90,13 +90,13 @@ pub struct CreateSmartWallet<'info> {
         payer = payer,
         space = SmartWalletAuthenticator::DISCRIMINATOR.len() + SmartWalletAuthenticator::INIT_SPACE,
         seeds = [passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
-        bump
+        bump,
     )]
     pub smart_wallet_authenticator: Box<Account<'info, SmartWalletAuthenticator>>,
 
     #[account(
         seeds = [Config::PREFIX_SEED],
-        bump,
+        bump = config.bump,
     )]
     pub config: Box<Account<'info, Config>>,
 

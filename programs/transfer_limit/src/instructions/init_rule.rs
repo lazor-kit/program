@@ -18,10 +18,12 @@ pub struct InitRuleArgs {
 
 pub fn init_rule(ctx: Context<InitRule>, args: InitRuleArgs) -> Result<()> {
     let rule_data = &mut ctx.accounts.rule_data;
+    let smart_wallet_authenticator = &ctx.accounts.smart_wallet_authenticator;
+
     rule_data.set_inner(RuleData {
         token: args.token,
         limit_amount: args.limit_amount,
-        bump: ctx.bumps.smart_wallet_authenticator,
+        bump: smart_wallet_authenticator.bump,
         is_initialized: true,
     });
 
@@ -30,7 +32,7 @@ pub fn init_rule(ctx: Context<InitRule>, args: InitRuleArgs) -> Result<()> {
         member.set_inner(Member {
             smart_wallet: ctx.accounts.smart_wallet.key(),
             owner: ctx.accounts.smart_wallet_authenticator.key(),
-            bump: ctx.bumps.smart_wallet_authenticator,
+            bump: smart_wallet_authenticator.bump,
             is_initialized: true,
             member_type: MemberType::Admin,
         });
@@ -47,7 +49,7 @@ pub struct InitRule<'info> {
     #[account(
         seeds = [SMART_WALLET_SEED, smart_wallet_config.id.to_le_bytes().as_ref()],
         bump,
-        seeds::program = lazorkit.key(), // LazorKit ID
+        seeds::program = lazorkit.key(),
     )]
     /// CHECK: Smart Wallet
     pub smart_wallet: UncheckedAccount<'info>,
@@ -72,15 +74,15 @@ pub struct InitRule<'info> {
 
     #[account(
         seeds  = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
-        bump,
-        seeds::program = lazorkit.key(), // LazorKit ID
+        seeds::program = lazorkit.key(),
+        bump = smart_wallet_config.bump,
     )]
     pub smart_wallet_config: Account<'info, SmartWalletConfig>,
 
     #[account(
         seeds = [args.passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
-        bump,
-        seeds::program = lazorkit.key(), // LazorKit ID
+        seeds::program = lazorkit.key(),
+        bump = smart_wallet_authenticator.bump,
         signer,
     )]
     pub smart_wallet_authenticator: Account<'info, SmartWalletAuthenticator>,

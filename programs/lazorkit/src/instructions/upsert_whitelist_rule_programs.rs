@@ -17,7 +17,7 @@ pub struct UpsertWhitelistRulePrograms<'info> {
     #[account(
         mut,
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
-        bump,
+        bump = whitelist_rule_programs.bump,
     )]
     pub whitelist_rule_programs: Account<'info, WhitelistRulePrograms>,
 

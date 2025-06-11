@@ -4,9 +4,12 @@ use anchor_lang::prelude::*;
 pub fn init_rule(ctx: Context<InitRule>) -> Result<()> {
     let rule = &mut ctx.accounts.rule;
 
-    rule.smart_wallet = ctx.accounts.smart_wallet.key();
-    rule.admin = ctx.accounts.smart_wallet_authenticator.key();
-    rule.is_initialized = true;
+    rule.set_inner(Rule {
+        smart_wallet: ctx.accounts.smart_wallet.key(),
+        admin: ctx.accounts.smart_wallet_authenticator.key(),
+        is_initialized: false,
+        bump: ctx.bumps.rule,
+    });
 
     Ok(())
 }

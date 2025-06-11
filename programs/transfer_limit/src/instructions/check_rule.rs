@@ -58,13 +58,13 @@ pub struct CheckRule<'info> {
 
     #[account(
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
-        bump,
+        bump = member.bump,
     )]
     pub member: Account<'info, Member>,
 
     #[account(
         seeds = [RuleData::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), token.as_ref().unwrap_or(&Pubkey::default()).as_ref()],
-        bump,
+        bump = rule_data.bump,
     )]
     pub rule_data: Box<Account<'info, RuleData>>,
 

@@ -56,7 +56,7 @@ pub struct AddMember<'info> {
 
     #[account(
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
-        bump,
+        bump = admin.bump,
         constraint = admin.member_type == MemberType::Admin,
     )]
     pub admin: Account<'info, Member>,

@@ -83,7 +83,7 @@ pub fn execute_instruction(
             let rule_signer = get_pda_signer(
                 &args.passkey_pubkey,
                 ctx.accounts.smart_wallet.key(),
-                ctx.bumps.smart_wallet_authenticator,
+                authenticator.bump,
             );
             let rule_accounts = &ctx.remaining_accounts[args.rule_data.start_index as usize
                 ..(args.rule_data.start_index as usize + args.rule_data.length as usize)];
@@ -179,7 +179,7 @@ pub fn execute_instruction(
             let rule_signer = get_pda_signer(
                 &args.passkey_pubkey,
                 ctx.accounts.smart_wallet.key(),
-                ctx.bumps.smart_wallet_authenticator,
+                authenticator.bump,
             );
             let rule_accounts = &ctx.remaining_accounts[args.rule_data.start_index as usize
                 ..(args.rule_data.start_index as usize + args.rule_data.length as usize)];
@@ -223,7 +223,7 @@ pub fn execute_instruction(
             let rule_signer = get_pda_signer(
                 &args.passkey_pubkey,
                 ctx.accounts.smart_wallet.key(),
-                ctx.bumps.smart_wallet_authenticator,
+                authenticator.bump,
             );
             let rule_accounts = &ctx.remaining_accounts[args.rule_data.start_index as usize
                 ..(args.rule_data.start_index as usize + args.rule_data.length as usize)];
@@ -262,7 +262,7 @@ pub struct ExecuteInstruction<'info> {
 
     #[account(
         seeds = [Config::PREFIX_SEED],
-        bump,
+        bump = config.bump,
     )]
     pub config: Box<Account<'info, Config>>,
 
@@ -278,19 +278,19 @@ pub struct ExecuteInstruction<'info> {
     #[account(
         mut,
         seeds = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
-        bump,
+        bump = smart_wallet_config.bump,
     )]
     pub smart_wallet_config: Box<Account<'info, SmartWalletConfig>>,
 
     #[account(
         seeds = [args.passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
-        bump,
+        bump = smart_wallet_authenticator.bump,
     )]
     pub smart_wallet_authenticator: Box<Account<'info, SmartWalletAuthenticator>>,
 
     #[account(
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
-        bump,
+        bump = whitelist_rule_programs.bump,
     )]
     pub whitelist_rule_programs: Box<Account<'info, WhitelistRulePrograms>>,
 
