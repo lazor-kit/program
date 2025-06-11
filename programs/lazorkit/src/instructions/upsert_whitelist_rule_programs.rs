@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{state::WhitelistRulePrograms, ID};
+use crate::state::WhitelistRulePrograms;
 
 pub fn upsert_whitelist_rule_programs(
     ctx: Context<UpsertWhitelistRulePrograms>,
@@ -21,7 +21,6 @@ pub struct UpsertWhitelistRulePrograms<'info> {
         mut,
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
         bump,
-        owner = ID,
     )]
     pub whitelist_rule_programs: Account<'info, WhitelistRulePrograms>,
 

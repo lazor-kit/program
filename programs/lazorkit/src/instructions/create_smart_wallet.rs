@@ -6,7 +6,6 @@ use crate::{
         Config, SmartWalletAuthenticator, SmartWalletConfig, SmartWalletSeq, WhitelistRulePrograms,
     },
     utils::{execute_cpi, transfer_sol_from_pda, PasskeyExt, PdaSigner},
-    ID,
 };
 
 pub fn create_smart_wallet(
@@ -73,7 +72,6 @@ pub struct CreateSmartWallet<'info> {
     #[account(
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
         bump,
-        owner = ID
     )]
     pub whitelist_rule_programs: Account<'info, WhitelistRulePrograms>,
 
@@ -108,7 +106,6 @@ pub struct CreateSmartWallet<'info> {
     #[account(
         seeds = [Config::PREFIX_SEED],
         bump,
-        owner = ID
     )]
     pub config: Box<Account<'info, Config>>,
 

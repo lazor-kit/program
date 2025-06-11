@@ -4,7 +4,6 @@ use lazorkit::{program::Lazorkit, state::SmartWalletAuthenticator, utils::Passke
 use crate::{
     errors::TransferLimitError,
     state::{Member, MemberType},
-    ID,
 };
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
@@ -46,10 +45,7 @@ pub struct AddMember<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
-    #[account(
-        owner = lazorkit.key(),
-        signer,
-    )]
+    #[account(signer)]
     pub smart_wallet_authenticator: Account<'info, SmartWalletAuthenticator>,
 
     #[account(
@@ -61,7 +57,6 @@ pub struct AddMember<'info> {
     #[account(
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
         bump,
-        owner = ID,
         constraint = admin.member_type == MemberType::Admin,
     )]
     pub admin: Account<'info, Member>,

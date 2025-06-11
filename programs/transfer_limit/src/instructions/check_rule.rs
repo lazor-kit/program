@@ -8,7 +8,6 @@ use lazorkit::{
 use crate::{
     errors::TransferLimitError,
     state::{Member, MemberType, RuleData},
-    ID,
 };
 
 pub fn check_rule(
@@ -54,23 +53,18 @@ pub fn check_rule(
 #[derive(Accounts)]
 #[instruction(token: Option<Pubkey>)]
 pub struct CheckRule<'info> {
-    #[account(
-        owner = lazorkit.key(),
-        signer,
-    )]
+    #[account(signer)]
     pub smart_wallet_authenticator: Account<'info, SmartWalletAuthenticator>,
 
     #[account(
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
         bump,
-        owner = ID,
     )]
     pub member: Account<'info, Member>,
 
     #[account(
         seeds = [RuleData::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), token.as_ref().unwrap_or(&Pubkey::default()).as_ref()],
         bump,
-        owner = ID,
     )]
     pub rule_data: Box<Account<'info, RuleData>>,
 
