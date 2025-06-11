@@ -263,7 +263,6 @@ pub struct ExecuteInstruction<'info> {
     #[account(
         seeds = [Config::PREFIX_SEED],
         bump,
-        owner = ID
     )]
     pub config: Box<Account<'info, Config>>,
 
@@ -280,21 +279,18 @@ pub struct ExecuteInstruction<'info> {
         mut,
         seeds = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
         bump,
-        owner = ID,
     )]
     pub smart_wallet_config: Box<Account<'info, SmartWalletConfig>>,
 
     #[account(
         seeds = [args.passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump,
-        owner = ID,
     )]
     pub smart_wallet_authenticator: Box<Account<'info, SmartWalletAuthenticator>>,
 
     #[account(
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
         bump,
-        owner = ID
     )]
     pub whitelist_rule_programs: Box<Account<'info, WhitelistRulePrograms>>,
 
