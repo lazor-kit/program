@@ -55,7 +55,7 @@ pub struct InitRule<'info> {
     #[account(
         init_if_needed,
         payer = payer,
-        space = 8 + Member::INIT_SPACE,
+        space = Member::DISCRIMINATOR.len() + Member::INIT_SPACE,
         seeds = [Member::PREFIX_SEED, smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
         bump,
     )]
@@ -64,7 +64,7 @@ pub struct InitRule<'info> {
     #[account(
         init,
         payer = payer,
-        space = 8 + RuleData::INIT_SPACE,
+        space = RuleData::DISCRIMINATOR.len() + RuleData::INIT_SPACE,
         seeds = [RuleData::PREFIX_SEED, smart_wallet.key().as_ref(), args.token.as_ref().unwrap_or(&Pubkey::default()).as_ref()],
         bump,
     )]

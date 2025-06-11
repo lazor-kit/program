@@ -69,7 +69,7 @@ pub struct AddMember<'info> {
     #[account(
         init,
         payer = payer,
-        space = 8 + Member::INIT_SPACE,
+        space = Member::DISCRIMINATOR.len() + Member::INIT_SPACE,
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), new_smart_wallet_authenticator.key().as_ref()],
         bump,
     )]
