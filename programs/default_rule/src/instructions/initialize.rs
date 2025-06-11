@@ -17,7 +17,7 @@ pub struct Initialize<'info> {
         init_if_needed,
         payer = signer,
         space = Config::DISCRIMINATOR.len() + Config::INIT_SPACE,
-        seeds = [b"config"],
+        seeds = [Config::PREFIX_SEED],
         bump,
     )]
     pub config: Account<'info, Config>,

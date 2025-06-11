@@ -27,7 +27,7 @@ pub struct InitRule<'info> {
         init,
         payer = payer,
         space = Rule::DISCRIMINATOR.len() + Rule::INIT_SPACE,
-        seeds = [b"rule".as_ref(), smart_wallet.key().as_ref()],
+        seeds = [Rule::PREFIX_SEED, smart_wallet.key().as_ref()],
         bump,
     )]
     pub rule: Account<'info, Rule>,
