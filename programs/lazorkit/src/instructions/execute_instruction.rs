@@ -314,7 +314,7 @@ pub struct ExecuteInstruction<'info> {
     #[account(
         init,
         payer = payer,
-        space = 8 + SmartWalletAuthenticator::INIT_SPACE,
+        space = SmartWalletAuthenticator::DISCRIMINATOR.len() + SmartWalletAuthenticator::INIT_SPACE,
         seeds = [args.create_new_authenticator.unwrap_or([0; 33]).to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump,
     )]

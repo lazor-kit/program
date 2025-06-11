@@ -90,7 +90,7 @@ pub struct CreateSmartWallet<'info> {
     #[account(
         init,
         payer = signer,
-        space = 8 + SmartWalletConfig::INIT_SPACE,
+        space = SmartWalletConfig::DISCRIMINATOR.len() + SmartWalletConfig::INIT_SPACE,
         seeds = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
         bump
     )]
@@ -99,7 +99,7 @@ pub struct CreateSmartWallet<'info> {
     #[account(
         init,
         payer = signer,
-        space = 8 + SmartWalletAuthenticator::INIT_SPACE,
+        space = SmartWalletAuthenticator::DISCRIMINATOR.len() + SmartWalletAuthenticator::INIT_SPACE,
         seeds = [passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump
     )]

@@ -28,7 +28,7 @@ pub struct Initialize<'info> {
     #[account(
         init_if_needed,
         payer = signer,
-        space = 8 + Config::INIT_SPACE,
+        space = Config::DISCRIMINATOR.len() + Config::INIT_SPACE,
         seeds = [Config::PREFIX_SEED],
         bump,
     )]
@@ -37,7 +37,7 @@ pub struct Initialize<'info> {
     #[account(
         init_if_needed,
         payer = signer,
-        space = 8 + WhitelistRulePrograms::INIT_SPACE,
+        space = WhitelistRulePrograms::DISCRIMINATOR.len() + WhitelistRulePrograms::INIT_SPACE,
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
         bump
     )]
@@ -46,7 +46,7 @@ pub struct Initialize<'info> {
     #[account(
         init_if_needed,
         payer = signer,
-        space = 8 + SmartWalletSeq::INIT_SPACE,
+        space = SmartWalletSeq::DISCRIMINATOR.len() + SmartWalletSeq::INIT_SPACE,
         seeds = [SmartWalletSeq::PREFIX_SEED],
         bump
     )]
