@@ -7,15 +7,27 @@ use crate::{
 
 pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
     let whitelist_rule_programs = &mut ctx.accounts.whitelist_rule_programs;
-    whitelist_rule_programs.list = vec![ctx.accounts.default_rule_program.key()];
+
+    whitelist_rule_programs.set_inner(WhitelistRulePrograms {
+        list: vec![ctx.accounts.default_rule_program.key()],
+        bump: ctx.bumps.whitelist_rule_programs,
+    });
 
     let smart_wallet_seq = &mut ctx.accounts.smart_wallet_seq;
-    smart_wallet_seq.seq = 0;
+
+    smart_wallet_seq.set_inner(SmartWalletSeq {
+        seq: 0,
+        bump: ctx.bumps.smart_wallet_seq,
+    });
 
     let config = &mut ctx.accounts.config;
-    config.create_smart_wallet_fee = 0; // LAMPORTS
-    config.default_rule_program = ctx.accounts.default_rule_program.key();
-    config.authority_bump = ctx.bumps.authority;
+
+    config.set_inner(Config {
+        create_smart_wallet_fee: 0,
+        default_rule_program: ctx.accounts.default_rule_program.key(),
+        authority_bump: ctx.bumps.authority,
+        bump: ctx.bumps.config,
+    });
 
     Ok(())
 }

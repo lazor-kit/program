@@ -6,6 +6,7 @@ pub struct Rule {
     pub smart_wallet: Pubkey,
     pub admin: Pubkey,
     pub is_initialized: bool,
+    pub bump: u8,
 }
 
 impl Rule {
