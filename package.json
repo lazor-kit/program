@@ -1,4 +1,9 @@
 {
+  "name": "@lazorkit/program",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lazor-kit/program"
+  },
   "license": "ISC",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
