@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 /// Account that maintains the sequence number for smart wallet creation
-#[account]
+#[account(discriminator = 4)]
 #[derive(Debug, InitSpace)]
 pub struct SmartWalletSeq {
     /// Current sequence number, incremented for each new smart wallet

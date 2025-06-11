@@ -2,7 +2,7 @@ use crate::constants::PASSKEY_SIZE;
 use anchor_lang::prelude::*;
 
 /// Account that stores authentication data for a smart wallet
-#[account]
+#[account(discriminator = 2)]
 #[derive(Debug, InitSpace)]
 pub struct SmartWalletAuthenticator {
     /// The public key of the passkey that can authorize transactions

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-#[account]
+#[account(discriminator = 1)]
 #[derive(Default, InitSpace)]
 pub struct Config {
     pub create_smart_wallet_fee: u64,

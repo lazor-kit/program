@@ -17,11 +17,13 @@ pub mod lazorkit {
     use super::*;
 
     /// Initialize the program by creating the sequence tracker
+    #[instruction(discriminator = 1)]
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         instructions::initialize(ctx)
     }
 
     /// Create a new smart wallet with passkey authentication
+    #[instruction(discriminator = 2)]
     pub fn create_smart_wallet(
         ctx: Context<CreateSmartWallet>,
         passkey_pubkey: [u8; PASSKEY_SIZE],
@@ -31,6 +33,7 @@ pub mod lazorkit {
     }
 
     /// Execute an instruction with passkey authentication
+    #[instruction(discriminator = 3)]
     pub fn execute_instruction(
         ctx: Context<ExecuteInstruction>,
         args: ExecuteInstructionArgs,
@@ -39,6 +42,7 @@ pub mod lazorkit {
     }
 
     /// Update the list of whitelisted rule programs
+    #[instruction(discriminator = 4)]
     pub fn upsert_whitelist_rule_programs(
         ctx: Context<UpsertWhitelistRulePrograms>,
         program_id: Pubkey,

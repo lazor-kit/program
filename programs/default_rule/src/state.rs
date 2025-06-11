@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-#[account]
+#[account(discriminator = 1)]
 #[derive(Debug, InitSpace)]
 pub struct Rule {
     pub smart_wallet: Pubkey,
@@ -8,7 +8,7 @@ pub struct Rule {
     pub is_initialized: bool,
 }
 
-#[account]
+#[account(discriminator = 2)]
 #[derive(Debug, InitSpace)]
 pub struct Config {
     pub authority: Pubkey,
