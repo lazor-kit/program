@@ -28,22 +28,15 @@ pub fn check_rule(
     if member.member_type != MemberType::Admin && rule_data.is_initialized {
         // check program_id must equal system program, token program or token 2022 program
         if program_id != SYSTEM_ID && program_id != SPL_TOKEN {
-            return Err(TransferLimitError::UnAuthorize.into());
+            return Err(TransferLimitError::InvalidProgram.into());
         } else {
-            if cpi_data.get(0..4) == Some(&SOL_TRANSFER_DISCRIMINATOR) && program_id == SYSTEM_ID {
-                let amount = u64::from_le_bytes(cpi_data[4..12].try_into().unwrap());
-                if amount > rule_data.limit_amount {
-                    return Err(TransferLimitError::TransferAmountExceedLimit.into());
-                }
-            } else if cpi_data.get(0..4) == Some(&SOL_TRANSFER_DISCRIMINATOR)
-                && program_id == SPL_TOKEN
-            {
+            if cpi_data.get(0..4) == Some(&SOL_TRANSFER_DISCRIMINATOR) {
                 let amount = u64::from_le_bytes(cpi_data[4..12].try_into().unwrap());
                 if amount > rule_data.limit_amount {
                     return Err(TransferLimitError::TransferAmountExceedLimit.into());
                 }
             } else {
-                return Err(TransferLimitError::UnAuthorize.into());
+                return Err(TransferLimitError::InvalidCpiData.into());
             }
         }
     }

@@ -84,9 +84,22 @@ pub fn verify_secp256r1_instruction(
 ) -> Result<()> {
     let expected_len =
         (SECP_DATA_START + SECP_PUBKEY_SIZE + SECP_SIGNATURE_SIZE) as usize + msg.len();
-    if ix.program_id != SECP256R1_ID || !ix.accounts.is_empty() || ix.data.len() != expected_len {
-        return Err(LazorKitError::InvalidLengthForVerification.into());
-    }
+
+    require!(
+        ix.program_id == SECP256R1_ID,
+        LazorKitError::InvalidSecp256r1Program,
+    );
+
+    require!(
+        ix.accounts.is_empty(),
+        LazorKitError::InvalidSecp256r1VerifyAccounts,
+    );
+
+    require!(
+        ix.data.len() == expected_len,
+        LazorKitError::InvalidSecp256r1VerifyData,
+    );
+
     verify_secp256r1_data(&ix.data, pubkey, msg, sig)
 }
 
@@ -196,7 +209,7 @@ pub fn get_account_slice<'a>(
 ) -> Result<&'a [AccountInfo<'a>]> {
     accounts
         .get(start as usize..(start as usize + len as usize))
-        .ok_or(crate::error::LazorKitError::InvalidAccountInput.into())
+        .ok_or(LazorKitError::InvalidAccountInput.into())
 }
 
 /// Helper: Create a PDA signer struct
@@ -214,7 +227,7 @@ pub fn check_whitelist(
 ) -> Result<()> {
     require!(
         whitelist.list.contains(program),
-        crate::error::LazorKitError::InvalidRuleProgram
+        LazorKitError::ProgramNotInWhitelist
     );
     Ok(())
 }

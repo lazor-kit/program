@@ -1,4 +1,4 @@
-use crate::error::RuleError;
+use crate::error::DefaultRuleError;
 use crate::state::Rule;
 use anchor_lang::prelude::*;
 
@@ -15,8 +15,8 @@ pub struct Destroy<'info> {
         mut,
         seeds = [Rule::PREFIX_SEED, smart_wallet.key().as_ref()],
         bump = rule.bump,
-        constraint = smart_wallet_authenticator.key() == rule.admin @ RuleError::UnAuthorize,
-        constraint = rule.smart_wallet == smart_wallet.key() @ RuleError::UnAuthorize,
+        constraint = smart_wallet_authenticator.key() == rule.admin @ DefaultRuleError::InvalidAuthenticator,
+        has_one = smart_wallet @ DefaultRuleError::InvalidSmartWallet,
         close = smart_wallet
     )]
     pub rule: Account<'info, Rule>,
