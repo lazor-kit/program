@@ -11,7 +11,6 @@ use crate::{
     state::{SmartWalletAuthenticator, SmartWalletConfig, WhitelistRulePrograms},
     ID,
 };
-use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 
 /// Enum for supported actions in the instruction
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -302,8 +301,7 @@ pub struct ExecuteInstruction<'info> {
     /// CHECK: Used for rule CPI.
     pub authenticator_program: UncheckedAccount<'info>,
 
-    #[account(address = IX_ID)]
-    /// CHECK: Sysvar for instructions.
+    /// CHECK: Instructions sysvar
     pub ix_sysvar: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
