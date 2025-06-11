@@ -23,11 +23,11 @@ pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
 
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         space = Config::DISCRIMINATOR.len() + Config::INIT_SPACE,
         seeds = [Config::PREFIX_SEED],
         bump,
@@ -36,7 +36,7 @@ pub struct Initialize<'info> {
 
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         space = WhitelistRulePrograms::DISCRIMINATOR.len() + WhitelistRulePrograms::INIT_SPACE,
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
         bump
@@ -45,7 +45,7 @@ pub struct Initialize<'info> {
 
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         space = SmartWalletSeq::DISCRIMINATOR.len() + SmartWalletSeq::INIT_SPACE,
         seeds = [SmartWalletSeq::PREFIX_SEED],
         bump
@@ -54,7 +54,7 @@ pub struct Initialize<'info> {
 
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         space = 0,
         seeds = [AUTHORITY_SEED],
         bump,

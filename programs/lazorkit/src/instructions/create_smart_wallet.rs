@@ -46,7 +46,7 @@ pub fn create_smart_wallet(
 
     transfer_sol_from_pda(
         &ctx.accounts.smart_wallet,
-        &mut ctx.accounts.signer,
+        &mut ctx.accounts.payer,
         ctx.accounts.config.create_smart_wallet_fee,
     )?;
 
@@ -57,7 +57,7 @@ pub fn create_smart_wallet(
 #[instruction(passkey_pubkey: [u8; PASSKEY_SIZE])]
 pub struct CreateSmartWallet<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
 
     #[account(
         mut,
@@ -68,7 +68,7 @@ pub struct CreateSmartWallet<'info> {
 
     #[account(
         init,
-        payer = signer,
+        payer = payer,
         space = 0,
         seeds = [SMART_WALLET_SEED, smart_wallet_seq.seq.to_le_bytes().as_ref()],
         bump
@@ -78,7 +78,7 @@ pub struct CreateSmartWallet<'info> {
 
     #[account(
         init,
-        payer = signer,
+        payer = payer,
         space = SmartWalletConfig::DISCRIMINATOR.len() + SmartWalletConfig::INIT_SPACE,
         seeds = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
         bump
@@ -87,7 +87,7 @@ pub struct CreateSmartWallet<'info> {
 
     #[account(
         init,
-        payer = signer,
+        payer = payer,
         space = SmartWalletAuthenticator::DISCRIMINATOR.len() + SmartWalletAuthenticator::INIT_SPACE,
         seeds = [passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump
