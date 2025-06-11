@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-#[account]
+#[account(discriminator = 1)]
 #[derive(Debug, InitSpace)]
 pub struct Config {
     pub authority: Pubkey,

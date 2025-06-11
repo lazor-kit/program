@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-#[account]
+#[account(discriminator = 4)]
 #[derive(Default, InitSpace)]
 pub struct RuleData {
     pub token: Option<Pubkey>,

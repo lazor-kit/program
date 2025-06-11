@@ -7,8 +7,8 @@ pub enum MemberType {
     Member,
 }
 
+#[account(discriminator = 2)]
 #[derive(Default, InitSpace)]
-#[account]
 pub struct Member {
     pub owner: Pubkey,
     pub member_type: MemberType,

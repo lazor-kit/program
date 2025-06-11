@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 /// Account that stores whitelisted rule program addresses
-#[account]
+#[account(discriminator = 5)]
 #[derive(Debug, InitSpace)]
 pub struct WhitelistRulePrograms {
     /// List of whitelisted program addresses

@@ -12,14 +12,17 @@ declare_id!("Dy9SC7En4NsVPYuiDdPJMCxfsV2Vd11YqtLVYabApzXb");
 pub mod transfer_limit {
     use super::*;
 
+    #[instruction(discriminator = 1)]
     pub fn initialize(ctx: Context<Initialize>, lazorkit_author: Pubkey) -> Result<()> {
         instructions::initialize(ctx, lazorkit_author)
     }
 
+    #[instruction(discriminator = 2)]
     pub fn init_rule(ctx: Context<InitRule>, init_rule_args: InitRuleArgs) -> Result<()> {
         instructions::init_rule(ctx, init_rule_args)
     }
 
+    #[instruction(discriminator = 3)]
     pub fn add_member(
         ctx: Context<AddMember>,
         new_passkey_pubkey: [u8; 33],
@@ -28,6 +31,7 @@ pub mod transfer_limit {
         instructions::add_member(ctx, new_passkey_pubkey, bump)
     }
 
+    #[instruction(discriminator = 4)]
     pub fn check_rule(
         ctx: Context<CheckRule>,
         token: Option<Pubkey>,

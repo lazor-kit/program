@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 /// Data account for a smart wallet
-#[account]
+#[account(discriminator = 3)]
 #[derive(Default, InitSpace)]
 pub struct SmartWalletConfig {
     /// Unique identifier for this smart wallet
