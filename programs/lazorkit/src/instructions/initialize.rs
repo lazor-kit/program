@@ -62,7 +62,11 @@ pub struct Initialize<'info> {
     /// CHECK: Only used for key and seeds.
     pub authority: UncheckedAccount<'info>,
 
-    /// CHECK:
+    /// CHECK: Default Rule Program
+    #[account(
+        address = config.default_rule_program,
+        executable
+    )]
     pub default_rule_program: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
