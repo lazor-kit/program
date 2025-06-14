@@ -2,12 +2,11 @@
 
 ## Overview
 
-Onchain program for Secp256r1 verification and exercute transaction, management smart wallet
+Onchain program for Secp256r1 verification, executing transactions and smart wallet management
 
 ## Installation
 
-Install anchor cli and solana cli
-Link: [text](https://solana.com/docs/intro/installation)
+[Install Solana CLI and Anchor CLI](https://solana.com/docs/intro/installation)
 
 ## Setup with Raydium Swap
 
