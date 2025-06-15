@@ -11,13 +11,13 @@ pub fn initialize(ctx: Context<Initialize>, lazorkit_author: Pubkey) -> Result<(
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
 
     #[account(
         init_if_needed,
-        payer = signer,
-        space = 8 + Config::INIT_SPACE,
-        seeds = [b"config"],
+        payer = payer,
+        space = Config::DISCRIMINATOR.len() + Config::INIT_SPACE,
+        seeds = [Config::PREFIX_SEED],
         bump,
     )]
     pub config: Account<'info, Config>,

@@ -2,27 +2,15 @@ use anchor_lang::error_code;
 
 #[error_code]
 pub enum TransferLimitError {
-    InvalidNewPasskey,
+    #[msg("Invalid CPI data")]
+    InvalidCpiData,
 
-    InvalidTokenAccount,
-
-    InvalidToken,
-
-    InvalidBalance,
-
-    InvalidTransferAmount,
-
-    RuleNotInitialized,
-
-    InvalidRuleAccount,
-
-    InvalidAccountInput,
-
-    UnAuthorize,
-
-    InvalidBump,
-
+    #[msg("Member is not initialized")]
     MemberNotInitialized,
 
+    #[msg("Amount exceeded limit in rule data")]
     TransferAmountExceedLimit,
+
+    #[msg("Program must be system program, token program or token 2022 program")]
+    InvalidProgram,
 }

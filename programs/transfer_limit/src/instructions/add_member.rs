@@ -1,39 +1,25 @@
 use anchor_lang::prelude::*;
-use lazorkit::{program::Lazorkit, state::SmartWalletAuthenticator, utils::PasskeyExt};
-
-use crate::{
-    errors::TransferLimitError,
-    state::{Member, MemberType},
-    ID,
+use lazorkit::{
+    constants::PASSKEY_SIZE, program::Lazorkit, state::SmartWalletAuthenticator, utils::PasskeyExt,
 };
+
+use crate::state::{Member, MemberType};
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct AddMemberArgs {
     pub member: Pubkey,
 }
 
-pub fn add_member(ctx: Context<AddMember>, new_passkey_pubkey: [u8; 33], bump: u8) -> Result<()> {
+pub fn add_member(ctx: Context<AddMember>, _new_passkey_pubkey: [u8; PASSKEY_SIZE]) -> Result<()> {
     let member = &mut ctx.accounts.member;
     let new_smart_wallet_authenticator = &mut ctx.accounts.new_smart_wallet_authenticator;
     let smart_wallet_authenticator = &mut ctx.accounts.smart_wallet_authenticator;
-
-    let seeds: &[&[u8]] =
-        &[&new_passkey_pubkey.to_hashed_bytes(smart_wallet_authenticator.smart_wallet.key())];
-    let (expected_pubkey, expected_bump) =
-        Pubkey::find_program_address(seeds, &ctx.accounts.lazorkit.key());
-
-    require!(
-        expected_pubkey == new_smart_wallet_authenticator.key(),
-        TransferLimitError::InvalidNewPasskey
-    );
-
-    require!(expected_bump == bump, TransferLimitError::InvalidBump);
 
     member.set_inner(Member {
         owner: new_smart_wallet_authenticator.key(),
         member_type: MemberType::Member,
         smart_wallet: smart_wallet_authenticator.smart_wallet,
-        bump: expected_bump,
+        bump: new_smart_wallet_authenticator.bump,
         is_initialized: true,
     });
 
@@ -41,27 +27,24 @@ pub fn add_member(ctx: Context<AddMember>, new_passkey_pubkey: [u8; 33], bump: u
 }
 
 #[derive(Accounts)]
-#[instruction(new_passkey_pubkey: [u8; 33], bump: u8)]
+#[instruction(new_passkey_pubkey: [u8; PASSKEY_SIZE])]
 pub struct AddMember<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
-    #[account(
-        owner = lazorkit.key(),
-        signer,
-    )]
+    #[account(signer)]
     pub smart_wallet_authenticator: Account<'info, SmartWalletAuthenticator>,
 
     #[account(
-        owner = lazorkit.key(),
+        seeds = [&new_passkey_pubkey.to_hashed_bytes(smart_wallet_authenticator.smart_wallet.key())],
+        seeds::program = lazorkit.key(),
+        bump = new_smart_wallet_authenticator.bump,
     )]
-    /// CHECK:
-    pub new_smart_wallet_authenticator: UncheckedAccount<'info>,
+    pub new_smart_wallet_authenticator: Account<'info, SmartWalletAuthenticator>,
 
     #[account(
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
-        bump,
-        owner = ID,
+        bump = admin.bump,
         constraint = admin.member_type == MemberType::Admin,
     )]
     pub admin: Account<'info, Member>,
@@ -69,7 +52,7 @@ pub struct AddMember<'info> {
     #[account(
         init,
         payer = payer,
-        space = 8 + Member::INIT_SPACE,
+        space = Member::DISCRIMINATOR.len() + Member::INIT_SPACE,
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), new_smart_wallet_authenticator.key().as_ref()],
         bump,
     )]

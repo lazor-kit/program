@@ -1,11 +1,12 @@
 use anchor_lang::prelude::*;
 
-#[account]
+#[account(discriminator = 1)]
 #[derive(Default, InitSpace)]
 pub struct Config {
     pub create_smart_wallet_fee: u64,
     pub default_rule_program: Pubkey,
     pub authority_bump: u8,
+    pub bump: u8,
 }
 
 impl Config {

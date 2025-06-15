@@ -1,5 +1,6 @@
 use anchor_lang::{prelude::*, solana_program::sysvar::instructions::load_instruction_at_checked};
 
+use crate::constants::PASSKEY_SIZE;
 use crate::state::Config;
 use crate::utils::{
     check_whitelist, execute_cpi, get_pda_signer, sighash, transfer_sol_from_pda,
@@ -7,11 +8,10 @@ use crate::utils::{
 };
 use crate::{
     constants::{SMART_WALLET_SEED, SOL_TRANSFER_DISCRIMINATOR},
-    error::LazorKitError,
+    errors::LazorKitError,
     state::{SmartWalletAuthenticator, SmartWalletConfig, WhitelistRulePrograms},
     ID,
 };
-use anchor_lang::solana_program::sysvar::instructions::ID as IX_ID;
 
 /// Enum for supported actions in the instruction
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -26,14 +26,14 @@ pub enum Action {
 /// Arguments for the execute_instruction entrypoint
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct ExecuteInstructionArgs {
-    pub passkey_pubkey: [u8; 33],
+    pub passkey_pubkey: [u8; PASSKEY_SIZE],
     pub signature: Vec<u8>,
     pub message: Vec<u8>,
     pub verify_instruction_index: u8,
     pub rule_data: CpiData,
     pub cpi_data: Option<CpiData>,
     pub action: Action,
-    pub create_new_authenticator: Option<[u8; 33]>,
+    pub create_new_authenticator: Option<[u8; PASSKEY_SIZE]>,
 }
 
 /// Data for a CPI call (instruction data and account slice)
@@ -53,13 +53,6 @@ pub fn execute_instruction(
     let authenticator = &ctx.accounts.smart_wallet_authenticator;
     let payer = &ctx.accounts.payer;
     let payer_balance_before = payer.lamports();
-
-    // --- Passkey and wallet validation ---
-    require!(
-        authenticator.passkey_pubkey == args.passkey_pubkey
-            && authenticator.smart_wallet == ctx.accounts.smart_wallet.key(),
-        LazorKitError::InvalidPasskey
-    );
 
     // --- Signature verification using secp256r1 ---
     let secp_ix = load_instruction_at_checked(
@@ -84,7 +77,7 @@ pub fn execute_instruction(
             let rule_signer = get_pda_signer(
                 &args.passkey_pubkey,
                 ctx.accounts.smart_wallet.key(),
-                ctx.bumps.smart_wallet_authenticator,
+                authenticator.bump,
             );
             let rule_accounts = &ctx.remaining_accounts[args.rule_data.start_index as usize
                 ..(args.rule_data.start_index as usize + args.rule_data.length as usize)];
@@ -180,7 +173,7 @@ pub fn execute_instruction(
             let rule_signer = get_pda_signer(
                 &args.passkey_pubkey,
                 ctx.accounts.smart_wallet.key(),
-                ctx.bumps.smart_wallet_authenticator,
+                authenticator.bump,
             );
             let rule_accounts = &ctx.remaining_accounts[args.rule_data.start_index as usize
                 ..(args.rule_data.start_index as usize + args.rule_data.length as usize)];
@@ -224,7 +217,7 @@ pub fn execute_instruction(
             let rule_signer = get_pda_signer(
                 &args.passkey_pubkey,
                 ctx.accounts.smart_wallet.key(),
-                ctx.bumps.smart_wallet_authenticator,
+                authenticator.bump,
             );
             let rule_accounts = &ctx.remaining_accounts[args.rule_data.start_index as usize
                 ..(args.rule_data.start_index as usize + args.rule_data.length as usize)];
@@ -263,8 +256,7 @@ pub struct ExecuteInstruction<'info> {
 
     #[account(
         seeds = [Config::PREFIX_SEED],
-        bump,
-        owner = ID
+        bump = config.bump,
     )]
     pub config: Box<Account<'info, Config>>,
 
@@ -280,42 +272,42 @@ pub struct ExecuteInstruction<'info> {
     #[account(
         mut,
         seeds = [SmartWalletConfig::PREFIX_SEED, smart_wallet.key().as_ref()],
-        bump,
-        owner = ID,
+        bump = smart_wallet_config.bump,
     )]
     pub smart_wallet_config: Box<Account<'info, SmartWalletConfig>>,
 
     #[account(
         seeds = [args.passkey_pubkey.to_hashed_bytes(smart_wallet.key()).as_ref()],
-        bump,
-        owner = ID,
+        bump = smart_wallet_authenticator.bump,
+        has_one = smart_wallet @ LazorKitError::InvalidAuthenticator,
+        constraint = smart_wallet_authenticator.passkey_pubkey == args.passkey_pubkey @ LazorKitError::InvalidPasskey,
     )]
     pub smart_wallet_authenticator: Box<Account<'info, SmartWalletAuthenticator>>,
 
     #[account(
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
-        bump,
-        owner = ID
+        bump = whitelist_rule_programs.bump,
     )]
     pub whitelist_rule_programs: Box<Account<'info, WhitelistRulePrograms>>,
 
     /// CHECK: Used for rule CPI.
+    #[account(executable)]
     pub authenticator_program: UncheckedAccount<'info>,
 
-    #[account(address = IX_ID)]
-    /// CHECK: Sysvar for instructions.
+    /// CHECK: Instructions sysvar
     pub ix_sysvar: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
 
     /// CHECK: Used for CPI, not deserialized.
+    #[account(executable)]
     pub cpi_program: UncheckedAccount<'info>,
 
     #[account(
         init,
         payer = payer,
-        space = 8 + SmartWalletAuthenticator::INIT_SPACE,
-        seeds = [args.create_new_authenticator.unwrap_or([0; 33]).to_hashed_bytes(smart_wallet.key()).as_ref()],
+        space = SmartWalletAuthenticator::DISCRIMINATOR.len() + SmartWalletAuthenticator::INIT_SPACE,
+        seeds = [args.create_new_authenticator.unwrap_or([0; PASSKEY_SIZE]).to_hashed_bytes(smart_wallet.key()).as_ref()],
         bump,
     )]
     pub new_smart_wallet_authenticator: Option<Account<'info, SmartWalletAuthenticator>>,

@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
 
-#[account]
+#[account(discriminator = 3)]
 #[derive(Debug)]
 pub struct Record {}

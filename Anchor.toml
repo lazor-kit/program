@@ -1,11 +1,15 @@
 [toolchain]
+solana_version = "2.1.0"
+anchor_version = "0.31.1"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.localnet]
-contract = "3jq9oBWGCUWmBynC8TTBL9KWJdGegsChJ1c8ksybGhum"
+default_rule = "AULUCD8kw4Nnjb1hUsWyvucZ5tzwu3wCH7Dstc5p6AMj"
+lazorkit = "HPN843A4SZB7tfcLF9pu6hbvwTgv7HtdRscXoZWbAdXs"
+transfer_limit = "Dy9SC7En4NsVPYuiDdPJMCxfsV2Vd11YqtLVYabApzXb"
 
 [registry]
 url = "https://api.apr.dev"

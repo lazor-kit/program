@@ -1,6 +1,5 @@
-use crate::error::RuleError;
+use crate::errors::DefaultRuleError;
 use crate::state::Rule;
-use crate::ID;
 use anchor_lang::prelude::*;
 
 pub fn destroy(_ctx: Context<Destroy>) -> Result<()> {
@@ -9,15 +8,15 @@ pub fn destroy(_ctx: Context<Destroy>) -> Result<()> {
 
 #[derive(Accounts)]
 pub struct Destroy<'info> {
-    /// CHECK
+    /// CHECK: Smart Wallet
     pub smart_wallet: UncheckedAccount<'info>,
-    /// CHECK
     pub smart_wallet_authenticator: Signer<'info>,
     #[account(
         mut,
-        owner = ID,
-        constraint = smart_wallet_authenticator.key() == rule.admin @ RuleError::UnAuthorize,
-        constraint = rule.smart_wallet == smart_wallet.key() @ RuleError::UnAuthorize,
+        seeds = [Rule::PREFIX_SEED, smart_wallet.key().as_ref()],
+        bump = rule.bump,
+        constraint = smart_wallet_authenticator.key() == rule.admin @ DefaultRuleError::InvalidAuthenticator,
+        has_one = smart_wallet @ DefaultRuleError::InvalidSmartWallet,
         close = smart_wallet
     )]
     pub rule: Account<'info, Rule>,

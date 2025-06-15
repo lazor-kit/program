@@ -2,20 +2,33 @@ use anchor_lang::prelude::*;
 
 use crate::{
     constants::AUTHORITY_SEED,
+    errors::LazorKitError,
     state::{Config, SmartWalletSeq, WhitelistRulePrograms},
 };
 
 pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
     let whitelist_rule_programs = &mut ctx.accounts.whitelist_rule_programs;
-    whitelist_rule_programs.list = vec![ctx.accounts.default_rule_program.key()];
+
+    whitelist_rule_programs.set_inner(WhitelistRulePrograms {
+        list: vec![ctx.accounts.default_rule_program.key()],
+        bump: ctx.bumps.whitelist_rule_programs,
+    });
 
     let smart_wallet_seq = &mut ctx.accounts.smart_wallet_seq;
-    smart_wallet_seq.seq = 0;
+
+    smart_wallet_seq.set_inner(SmartWalletSeq {
+        seq: 0,
+        bump: ctx.bumps.smart_wallet_seq,
+    });
 
     let config = &mut ctx.accounts.config;
-    config.create_smart_wallet_fee = 0; // LAMPORTS
-    config.default_rule_program = ctx.accounts.default_rule_program.key();
-    config.authority_bump = ctx.bumps.authority;
+
+    config.set_inner(Config {
+        create_smart_wallet_fee: 0,
+        default_rule_program: ctx.accounts.default_rule_program.key(),
+        authority_bump: ctx.bumps.authority,
+        bump: ctx.bumps.config,
+    });
 
     Ok(())
 }
@@ -23,12 +36,12 @@ pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
 
     #[account(
         init_if_needed,
-        payer = signer,
-        space = 8 + Config::INIT_SPACE,
+        payer = payer,
+        space = Config::DISCRIMINATOR.len() + Config::INIT_SPACE,
         seeds = [Config::PREFIX_SEED],
         bump,
     )]
@@ -36,8 +49,8 @@ pub struct Initialize<'info> {
 
     #[account(
         init_if_needed,
-        payer = signer,
-        space = 8 + WhitelistRulePrograms::INIT_SPACE,
+        payer = payer,
+        space = WhitelistRulePrograms::DISCRIMINATOR.len() + WhitelistRulePrograms::INIT_SPACE,
         seeds = [WhitelistRulePrograms::PREFIX_SEED],
         bump
     )]
@@ -45,8 +58,8 @@ pub struct Initialize<'info> {
 
     #[account(
         init_if_needed,
-        payer = signer,
-        space = 8 + SmartWalletSeq::INIT_SPACE,
+        payer = payer,
+        space = SmartWalletSeq::DISCRIMINATOR.len() + SmartWalletSeq::INIT_SPACE,
         seeds = [SmartWalletSeq::PREFIX_SEED],
         bump
     )]
@@ -54,7 +67,7 @@ pub struct Initialize<'info> {
 
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         space = 0,
         seeds = [AUTHORITY_SEED],
         bump,
@@ -62,7 +75,11 @@ pub struct Initialize<'info> {
     /// CHECK: Only used for key and seeds.
     pub authority: UncheckedAccount<'info>,
 
-    /// CHECK:
+    /// CHECK: Default Rule Program
+    #[account(
+        address = config.default_rule_program @ LazorKitError::InvalidRuleProgram,
+        executable,
+    )]
     pub default_rule_program: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,

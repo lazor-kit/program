@@ -8,7 +8,6 @@ use lazorkit::{
 use crate::{
     errors::TransferLimitError,
     state::{Member, MemberType, RuleData},
-    ID,
 };
 
 pub fn check_rule(
@@ -29,22 +28,15 @@ pub fn check_rule(
     if member.member_type != MemberType::Admin && rule_data.is_initialized {
         // check program_id must equal system program, token program or token 2022 program
         if program_id != SYSTEM_ID && program_id != SPL_TOKEN {
-            return Err(TransferLimitError::UnAuthorize.into());
+            return Err(TransferLimitError::InvalidProgram.into());
         } else {
-            if cpi_data.get(0..4) == Some(&SOL_TRANSFER_DISCRIMINATOR) && program_id == SYSTEM_ID {
-                let amount = u64::from_le_bytes(cpi_data[4..12].try_into().unwrap());
-                if amount > rule_data.limit_amount {
-                    return Err(TransferLimitError::TransferAmountExceedLimit.into());
-                }
-            } else if cpi_data.get(0..4) == Some(&SOL_TRANSFER_DISCRIMINATOR)
-                && program_id == SPL_TOKEN
-            {
+            if cpi_data.get(0..4) == Some(&SOL_TRANSFER_DISCRIMINATOR) {
                 let amount = u64::from_le_bytes(cpi_data[4..12].try_into().unwrap());
                 if amount > rule_data.limit_amount {
                     return Err(TransferLimitError::TransferAmountExceedLimit.into());
                 }
             } else {
-                return Err(TransferLimitError::UnAuthorize.into());
+                return Err(TransferLimitError::InvalidCpiData.into());
             }
         }
     }
@@ -54,23 +46,18 @@ pub fn check_rule(
 #[derive(Accounts)]
 #[instruction(token: Option<Pubkey>)]
 pub struct CheckRule<'info> {
-    #[account(
-        owner = lazorkit.key(),
-        signer,
-    )]
+    #[account(signer)]
     pub smart_wallet_authenticator: Account<'info, SmartWalletAuthenticator>,
 
     #[account(
         seeds = [Member::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), smart_wallet_authenticator.key().as_ref()],
-        bump,
-        owner = ID,
+        bump = member.bump,
     )]
     pub member: Account<'info, Member>,
 
     #[account(
         seeds = [RuleData::PREFIX_SEED, smart_wallet_authenticator.smart_wallet.key().as_ref(), token.as_ref().unwrap_or(&Pubkey::default()).as_ref()],
-        bump,
-        owner = ID,
+        bump = rule_data.bump,
     )]
     pub rule_data: Box<Account<'info, RuleData>>,
 
